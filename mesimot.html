@@ -72,6 +72,7 @@ body{font-family:'Heebo',sans-serif;background:#cdd9ea;min-height:100vh;color:#1
 .dchip.due{background:#e8f0fb;color:#2f74c0}
 .dchip.alert{background:#fdf0e3;color:#b4741b}
 .dchip.hot{background:#f8dede;color:#b5231b}
+.calb{background:#e6f3e9;color:#1e7e40;font-size:12px;font-weight:800;padding:6px 10px;border-radius:8px;text-decoration:none;display:inline-block}
 .task.alerting{border-right-color:#e0902a;background:#fffdf8}
 .brand{text-align:center;font-size:11.5px;color:#7385a0;margin-top:24px;font-weight:600}
 </style>
@@ -127,6 +128,8 @@ function rmEdFile(i){EDFILES.splice(i,1);render();}
 function onEdFile(inp,kind){var f=inp.files&&inp.files[0];if(!f)return;inp.value='';if(kind==='img'){var img=new Image();var rd=new FileReader();rd.onload=function(){img.onload=function(){var mx=1200,w=img.width,h=img.height;if(w>mx||h>mx){if(w>h){h=Math.round(h*mx/w);w=mx;}else{w=Math.round(w*mx/h);h=mx;}}var cv=document.createElement('canvas');cv.width=w;cv.height=h;cv.getContext('2d').drawImage(img,0,0,w,h);EDFILES.push({name:f.name||'תמונה',type:'img',url:cv.toDataURL('image/jpeg',0.8)});render();};img.src=rd.result;};rd.readAsDataURL(f);}else{var rd2=new FileReader();rd2.onload=function(){EDFILES.push({name:f.name||'קובץ',type:'doc',url:rd2.result});render();};rd2.readAsDataURL(f);}}
 function saveEdit(id){var inp=document.getElementById('ed_'+id);var t=((inp?inp.value:EDTEXT)||'').trim();var it=TASKS.find(function(x){return x.id===id;});if(it){if(t){it.t=t;it.who=EDWHO;it.files=EDFILES.slice();it.due=EDDUE;it.alert=EDALERT;}else{TASKS=TASKS.filter(function(x){return x.id!==id;});}}EDIT=-1;persist();render();}
 function cancelEdit(){EDIT=-1;render();}
+function nextDay(s){var p=s.split('-');var d=new Date(Date.UTC(+p[0],+p[1]-1,+p[2]+1));var m=d.getUTCMonth()+1,y=d.getUTCDate();return d.getUTCFullYear()+''+(m<10?'0':'')+m+''+(y<10?'0':'')+y;}
+function gcal(x){var d=x.alert||x.due;if(!d)return '';var s=d.replace(/-/g,'');var e=nextDay(d);var det='\u05de\u05ea\u05d5\u05da \u05d3\u05e3 \u05d4\u05de\u05e9\u05d9\u05de\u05d5\u05ea'+(x.who?' \u00b7 \u05de\u05d1\u05e6\u05e2: '+x.who:'')+(x.due?' \u00b7 \u05ea\u05d0\u05e8\u05d9\u05da \u05e1\u05d9\u05d5\u05dd: '+fmtD(x.due):'');var u='https://calendar.google.com/calendar/render?action=TEMPLATE&text='+encodeURIComponent(x.t||'\u05de\u05e9\u05d9\u05de\u05d4')+'&dates='+s+'/'+e+'&details='+encodeURIComponent(det);return '<a class="calb" href="'+u+'" target="_blank" rel="noopener">\ud83d\udcc6 \u05d4\u05d5\u05e1\u05e3 \u05dc\u05d9\u05d5\u05de\u05df</a>';}
 function clearAlert(id){var it=TASKS.find(function(x){return x.id===id;});if(it){it.alert='';persist();render();}}
 function openPick(id){PICK=(PICK===id?-1:id);render();}
 function setWho(id,name){var it=TASKS.find(function(x){return x.id===id;});if(it){it.who=name;}PICK=-1;persist();render();}
@@ -150,6 +153,7 @@ function render(){
     var dch='';
     if(x.due) dch+='<span class="dchip due'+((!x.done&&isHot(x.due))?' hot':'')+'">📅 סיום '+fmtD(x.due)+'</span>';
     if(x.alert) dch+='<span class="dchip alert'+((!x.done&&isHot(x.alert))?' hot':'')+'">🔔 התראה '+fmtD(x.alert)+' <span style="cursor:pointer;font-weight:900" onclick="clearAlert(\''+x.id+'\')">✕</span></span>';
+    dch+=gcal(x);
     var dates=dch?'<div class="dchips">'+dch+'</div>':'';
     var alerting=(!x.done&&(isHot(x.alert)||isHot(x.due)));
     return '<div class="task'+(x.done?' done':'')+(alerting?' alerting':'')+'">'
