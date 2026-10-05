@@ -36,11 +36,15 @@ body{font-family:'Heebo',sans-serif;background:#cdd9ea;min-height:100vh;color:#1
 .counter{text-align:center;font-size:14px;font-weight:700;color:#48566b;margin-bottom:12px}
 .list{display:flex;flex-direction:column;gap:10px}
 .task{background:#fff;border-radius:13px;box-shadow:0 2px 9px rgba(30,50,80,.08);padding:14px 15px;display:flex;flex-direction:column;align-items:stretch;gap:0;border-right:5px solid #2f74c0;transition:opacity .15s}
-.taskrow{display:flex;align-items:center;gap:12px}
+.taskrow{display:flex;flex-direction:column;align-items:stretch;gap:10px}
 .task.done{border-right-color:#1e7e40;opacity:.66}
 .task .txt{flex:1;font-size:15.5px;font-weight:700;line-height:1.4;word-break:break-word;text-align:right}
 .task.done .txt{text-decoration:line-through;color:#5a6472}
-.task .ctrls{display:flex;align-items:center;gap:7px;flex:none;flex-wrap:wrap;justify-content:flex-end}
+.task .ctrls{display:flex;align-items:center;gap:7px;flex-wrap:wrap;justify-content:flex-start}
+.ibtn.ed{background:#e8f1fb;color:#2f74c0}
+.ibtn.del{background:#fbeae8;color:#c0392f}
+.ibtn.del:hover{background:#c0392f;color:#fff}
+.cdel2{border:none;background:#8e1b14;color:#fff;font-size:12.5px;font-weight:800;padding:8px 12px;border-radius:8px;cursor:pointer;font-family:'Heebo',sans-serif;white-space:nowrap}
 .dbtn{border:none;background:#e05a5a;color:#fff;font-size:12.5px;font-weight:800;padding:8px 13px;border-radius:8px;cursor:pointer;font-family:'Heebo',sans-serif;white-space:nowrap}
 .dbtn.on{background:#1e7e40}
 .ibtn{border:none;background:#eef1f6;color:#48566b;font-size:15px;width:34px;height:34px;border-radius:8px;cursor:pointer;font-weight:800}
@@ -109,6 +113,7 @@ function todayStr(){var d=new Date();var m=d.getMonth()+1,y=d.getDate();return d
 function fmtD(s){if(!s)return '';var p=s.split('-');if(p.length!==3)return s;return p[2]+'/'+p[1]+'/'+p[0].slice(2);}
 function isHot(s){return !!s && s<=todayStr();}
 var CONFIRMDEL=-1;
+var CONFIRMDEL2=-1;
 var TASKS=loadInit();
 function wl(v){if(!v)return [];if(Object.prototype.toString.call(v)==='[object Array]')return v.slice();return [v];}
 function whoTxt(x){return wl(x.who).join(', ');}
@@ -127,9 +132,10 @@ function doSave(){var inp=document.getElementById('newtask');var t=((inp?inp.val
 function renderAdd(){var w=document.getElementById('addpanel');var tg=document.getElementById('addtoggle');if(!ADDING){w.style.display='none';w.innerHTML='';tg.style.display='';return;}tg.style.display='none';w.style.display='';var attHtml=NEWFILES.map(function(a,i){return a.type==='img'?'<div class="attchip"><img src="'+a.url+'"><button type="button" class="attx" onclick="rmNewFile('+i+')">×</button></div>':'<div class="attchip doc"><span>📄 '+esc(a.name)+'</span><button type="button" class="attx" onclick="rmNewFile('+i+')">×</button></div>';}).join('');
 w.innerHTML='<form id="addform2" autocomplete="off"><input type="text" id="newtask" placeholder="מה המשימה?" value="'+esc(NEWTEXT)+'" enterkeyhint="done" oninput="NEWTEXT=this.value"><div class="pickrow2"><span class="pklbl">מבצע:</span>'+allPeople().map(function(p){return '<button type="button" class="popt'+(NEWWHO.indexOf(p)>=0?' sel':'')+'"'+(NEWWHO.indexOf(p)>=0?'':pstyle(p))+' onclick="setNewWho(\''+p+'\')">'+p+'</button>';}).join('')+'<button type="button" class="popt add" onclick="addPerson(\'new\')">＋ אחר</button></div><div class="daterow"><div class="datefld"><div class="lbr"><label>תאריך סיום</label>'+(NEWDUE?'<button type="button" class="clrd" onclick="NEWDUE=\'\';renderAdd()">✕ נקה</button>':'')+'</div><input type="date" id="newdue" value="'+esc(NEWDUE)+'" onchange="NEWDUE=this.value;renderAdd()"></div><div class="datefld"><div class="lbr"><label>תאריך התראה</label>'+(NEWALERT?'<button type="button" class="clrd" onclick="NEWALERT=\'\';renderAdd()">✕ בטל התראה</button>':'')+'</div><input type="date" id="newalert" value="'+esc(NEWALERT)+'" onchange="NEWALERT=this.value;renderAdd()"></div></div><div class="attbtns"><button type="button" class="attb" onclick="document.getElementById(\'camIn\').click()">📷 צלם תמונה</button><button type="button" class="attb" onclick="document.getElementById(\'imgIn\').click()">🖼️ צרף תמונה</button><button type="button" class="attb" onclick="document.getElementById(\'docIn\').click()">📎 העלה קובץ</button></div><div class="attlist">'+attHtml+'</div><input type="file" id="camIn" accept="image/*" capture="environment" style="display:none" onchange="onFile(this,\'img\')"><input type="file" id="imgIn" accept="image/*" style="display:none" onchange="onFile(this,\'img\')"><input type="file" id="docIn" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.dwg" style="display:none" onchange="onFile(this,\'doc\')"><div class="addbtns"><button type="submit" class="sv2">➕ הוסף</button><button type="button" class="cn2" onclick="closeAdd()">ביטול</button></div></form>';var f=document.getElementById('addform2');f.addEventListener('submit',function(e){e.preventDefault();doSave();});var inp=document.getElementById('newtask');if(inp)inp.focus();}
 function toggle(id){var it=TASKS.find(function(x){return x.id===id;});if(it){it.done=!it.done;persist();render();}}
-function askDel(id){CONFIRMDEL=id;render();}
-function cancelDel(){CONFIRMDEL=-1;render();}
-function del(id){TASKS=TASKS.filter(function(x){return x.id!==id;});if(EDIT===id)EDIT=-1;CONFIRMDEL=-1;persist();render();}
+function askDel(id){CONFIRMDEL=id;CONFIRMDEL2=-1;render();}
+function askDel2(id){CONFIRMDEL2=id;render();}
+function cancelDel(){CONFIRMDEL=-1;CONFIRMDEL2=-1;render();}
+function del(id){TASKS=TASKS.filter(function(x){return x.id!==id;});if(EDIT===id)EDIT=-1;CONFIRMDEL=-1;CONFIRMDEL2=-1;persist();render();}
 function startEdit(id){var it=TASKS.find(function(x){return x.id===id;});if(!it)return;EDIT=id;PICK=-1;EDTEXT=it.t||'';EDWHO=wl(it.who);EDFILES=(it.files||[]).slice();EDDUE=it.due||'';EDALERT=it.alert||'';render();var inp=document.getElementById('ed_'+id);if(inp){inp.focus();inp.setSelectionRange(inp.value.length,inp.value.length);}}
 function setEdWho(p){tog(EDWHO,p);render();}
 function rmEdFile(i){EDFILES.splice(i,1);render();}
@@ -178,9 +184,11 @@ function render(){
       +'<div class="ctrls">'
       +whoHtml
       +'<button class="dbtn'+(x.done?' on':'')+'" onclick="toggle(\''+x.id+'\')">'+(x.done?'בוצע ✓':'לא בוצע')+'</button>'
-      +'<button class="ibtn" onclick="startEdit(\''+x.id+'\')">✎</button>'
-      +(CONFIRMDEL===x.id
-        ? '<button class="cdel" onclick="del(\''+x.id+'\')">מחק</button><button class="ckeep" onclick="cancelDel()">ביטול</button>'
+      +'<button class="ibtn ed" onclick="startEdit(\''+x.id+'\')">✎</button>'
+      +(CONFIRMDEL2===x.id
+        ? '<button class="cdel2" onclick="del(\''+x.id+'\')">בטוח? מחק סופית</button><button class="ckeep" onclick="cancelDel()">ביטול</button>'
+        : CONFIRMDEL===x.id
+        ? '<button class="cdel" onclick="askDel2(\''+x.id+'\')">מחק</button><button class="ckeep" onclick="cancelDel()">ביטול</button>'
         : '<button class="ibtn del" onclick="askDel(\''+x.id+'\')">×</button>')
       +'</div></div>'
       +pickBar
