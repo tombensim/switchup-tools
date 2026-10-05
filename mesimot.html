@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>דף משימות</title>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Heebo',sans-serif;background:#cdd9ea;min-height:100vh;color:#1e2733;padding:0 0 60px}
+.top{background:#33415a;color:#fff;padding:18px 16px 16px;text-align:center;position:sticky;top:0;z-index:5;box-shadow:0 2px 10px rgba(0,0,0,.15)}
+.top h1{font-size:21px;font-weight:900;letter-spacing:.3px}
+.top .sub{font-size:13px;opacity:.85;margin-top:3px;font-weight:500}
+.wrap{max-width:640px;margin:0 auto;padding:16px}
+.addwrap{margin-bottom:16px}
+.addtoggle{width:100%;border:none;background:#2f74c0;color:#fff;font-size:16px;font-weight:800;padding:15px;border-radius:12px;cursor:pointer;font-family:'Heebo',sans-serif;box-shadow:0 3px 12px rgba(30,50,80,.10)}
+.addpanel{background:#fff;border-radius:14px;box-shadow:0 3px 12px rgba(30,50,80,.10);padding:14px}
+.addpanel input{width:100%;border:1.5px solid #d6dde8;border-radius:10px;padding:12px 13px;font-size:15px;font-family:'Heebo',sans-serif;background:#fbfcfe;text-align:right;margin-bottom:11px}
+.addpanel input:focus{outline:none;border-color:#2f74c0}
+.pickrow2{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+.pklbl{font-size:13px;font-weight:700;color:#48566b}
+.addbtns{display:flex;gap:8px}
+.sv2{flex:1;border:none;background:#2f9e56;color:#fff;font-size:15px;font-weight:800;padding:12px;border-radius:10px;cursor:pointer;font-family:'Heebo',sans-serif}
+.cn2{border:none;background:#e6e9ef;color:#5a6472;font-size:14px;font-weight:800;padding:12px 18px;border-radius:10px;cursor:pointer;font-family:'Heebo',sans-serif}
+.attbtns{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:11px}
+.attb{border:none;background:#eef1f6;color:#33415a;font-size:12.5px;font-weight:800;padding:9px 11px;border-radius:9px;cursor:pointer;font-family:'Heebo',sans-serif}
+.attlist{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px}
+.attchip{position:relative}
+.attchip img{width:54px;height:54px;object-fit:cover;border-radius:8px;display:block}
+.attchip.doc{background:#f2f5fa;border-radius:8px;padding:8px 10px;font-size:12px;font-weight:700;color:#33415a;display:flex;align-items:center;gap:6px}
+.attx{position:absolute;top:-6px;left:-6px;border:none;background:#e05a5a;color:#fff;width:20px;height:20px;border-radius:50%;font-size:13px;font-weight:800;cursor:pointer;line-height:1;padding:0}
+.attchip.doc .attx{position:static;width:18px;height:18px}
+.atts{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+.attthumb img{width:52px;height:52px;object-fit:cover;border-radius:8px;display:block}
+.attdoc{background:#f2f5fa;border-radius:8px;padding:7px 10px;font-size:12.5px;font-weight:700;color:#2f74c0;text-decoration:none}
+.counter{text-align:center;font-size:14px;font-weight:700;color:#48566b;margin-bottom:12px}
+.list{display:flex;flex-direction:column;gap:10px}
+.task{background:#fff;border-radius:13px;box-shadow:0 2px 9px rgba(30,50,80,.08);padding:14px 15px;display:flex;flex-direction:column;align-items:stretch;gap:0;border-right:5px solid #2f74c0;transition:opacity .15s}
+.taskrow{display:flex;align-items:center;gap:12px}
+.task.done{border-right-color:#1e7e40;opacity:.66}
+.task .txt{flex:1;font-size:15.5px;font-weight:700;line-height:1.4;word-break:break-word;text-align:right}
+.task.done .txt{text-decoration:line-through;color:#5a6472}
+.task .ctrls{display:flex;align-items:center;gap:7px;flex:none}
+.dbtn{border:none;background:#e05a5a;color:#fff;font-size:12.5px;font-weight:800;padding:8px 13px;border-radius:8px;cursor:pointer;font-family:'Heebo',sans-serif;white-space:nowrap}
+.dbtn.on{background:#1e7e40}
+.ibtn{border:none;background:#eef1f6;color:#48566b;font-size:15px;width:34px;height:34px;border-radius:8px;cursor:pointer;font-weight:800}
+.ibtn.del:hover{background:#e05a5a;color:#fff}
+.cdel{border:none;background:#e05a5a;color:#fff;font-size:12.5px;font-weight:800;padding:8px 12px;border-radius:8px;cursor:pointer;font-family:'Heebo',sans-serif;white-space:nowrap}
+.ckeep{border:none;background:#e6e9ef;color:#5a6472;font-size:12.5px;font-weight:800;padding:8px 12px;border-radius:8px;cursor:pointer;font-family:'Heebo',sans-serif;white-space:nowrap}
+.who{border:none;background:#eef1f6;color:#48566b;font-size:12px;font-weight:800;padding:8px 11px;border-radius:8px;cursor:pointer;font-family:'Heebo',sans-serif;white-space:nowrap}
+.who.set{background:#2f74c0;color:#fff}
+.pickrow{display:flex;gap:5px;flex-wrap:wrap;align-items:center}
+.popt{border:none;background:#eef1f6;color:#33415a;font-size:12px;font-weight:800;padding:8px 10px;border-radius:8px;cursor:pointer;font-family:'Heebo',sans-serif;white-space:nowrap}
+.popt.sel{background:#2f74c0;color:#fff}
+.popt.clr{background:#f2dede;color:#b5231b}
+.edrow{flex:1;display:flex;gap:8px}
+.edrow input{flex:1;border:1.5px solid #2f74c0;border-radius:9px;padding:9px 11px;font-size:15px;font-family:'Heebo',sans-serif;text-align:right;background:#fbfcfe}
+.edrow input:focus{outline:none}
+.edrow .sv{background:#2f9e56;color:#fff}
+.edrow .cn{background:#e6e9ef;color:#5a6472}
+.edrow button{border:none;font-size:13px;font-weight:800;padding:0 13px;border-radius:9px;cursor:pointer;font-family:'Heebo',sans-serif}
+.empty{text-align:center;color:#7a869a;font-size:15px;font-weight:600;padding:34px 10px}
+.popt.add{background:#dfe9f6;color:#2f74c0}
+.daterow{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.datefld{flex:1;min-width:140px}
+.datefld label{display:block;font-size:12.5px;font-weight:800;color:#48566b;margin-bottom:4px}
+.datefld input{width:100%;border:1.5px solid #d6dde8;border-radius:10px;padding:10px 11px;font-size:14px;font-family:'Heebo',sans-serif;background:#fbfcfe;text-align:right;margin-bottom:0}
+.dchips{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}
+.dchip{background:#eef1f6;color:#48566b;font-size:12px;font-weight:800;padding:6px 10px;border-radius:8px}
+.dchip.due{background:#e8f0fb;color:#2f74c0}
+.dchip.alert{background:#fdf0e3;color:#b4741b}
+.dchip.hot{background:#f8dede;color:#b5231b}
+.task.alerting{border-right-color:#e0902a;background:#fffdf8}
+.brand{text-align:center;font-size:11.5px;color:#7385a0;margin-top:24px;font-weight:600}
+</style>
+</head>
+<body>
+<div class="top"><h1>דף משימות</h1><div class="sub">גילעד מעוז · שינויי דיירים</div></div>
+<div class="wrap">
+  <div class="addwrap">
+    <button type="button" id="addtoggle" class="addtoggle">➕ הוסף משימה</button>
+    <div class="addpanel" id="addpanel" style="display:none"></div>
+  </div>
+  <div class="counter" id="counter"></div>
+  <div class="list" id="list"></div>
+  <div class="brand">נשמר במכשיר שלך בלבד · Switchup</div>
+</div>
+<script>
+var KEY='giltasks_v1';
+var EDIT=-1;
+var PICK=-1;
+var PKEY='giltasks_people_v1';
+var PEOPLE=['ניר','נמו','יעל','אווה'];
+var EXTRA=loadPeople();
+function loadPeople(){try{return JSON.parse(localStorage.getItem(PKEY)||'[]');}catch(e){return[];}}
+function savePeople(){try{localStorage.setItem(PKEY,JSON.stringify(EXTRA));}catch(e){}}
+function allPeople(){return PEOPLE.concat(EXTRA);}
+var ADDING=false,NEWTEXT='',NEWWHO='',NEWFILES=[],NEWDUE='',NEWALERT='';
+var EDTEXT='',EDWHO='',EDFILES=[],EDDUE='',EDALERT='';
+function todayStr(){var d=new Date();var m=d.getMonth()+1,y=d.getDate();return d.getFullYear()+'-'+(m<10?'0':'')+m+'-'+(y<10?'0':'')+y;}
+function fmtD(s){if(!s)return '';var p=s.split('-');if(p.length!==3)return s;return p[2]+'/'+p[1]+'/'+p[0].slice(2);}
+function isHot(s){return !!s && s<=todayStr();}
+var CONFIRMDEL=-1;
+var TASKS=loadInit();
+function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function loadInit(){try{return JSON.parse(localStorage.getItem(KEY)||'[]');}catch(e){return[];}}
+function persist(){try{localStorage.setItem(KEY,JSON.stringify(TASKS));}catch(e){}}
+function newId(){return Date.now()+''+Math.floor(Math.random()*99999);}
+function openAdd(){ADDING=true;NEWTEXT='';NEWWHO='';NEWFILES=[];NEWDUE='';NEWALERT='';renderAdd();}
+function closeAdd(){ADDING=false;NEWTEXT='';NEWWHO='';NEWFILES=[];NEWDUE='';NEWALERT='';renderAdd();}
+function setNewWho(p){NEWWHO=(NEWWHO===p?'':p);renderAdd();}
+function addPerson(mode,id){var n=prompt('שם המבצע:');if(n===null)return;n=n.trim();if(!n)return;if(allPeople().indexOf(n)<0){EXTRA.push(n);savePeople();}if(mode==='new'){NEWWHO=n;renderAdd();}else if(mode==='ed'){EDWHO=n;render();}else{setWho(id,n);}}
+function rmNewFile(i){NEWFILES.splice(i,1);renderAdd();}
+function onFile(inp,kind){var f=inp.files&&inp.files[0];if(!f)return;inp.value='';if(kind==='img'){var img=new Image();var rd=new FileReader();rd.onload=function(){img.onload=function(){var mx=1200,w=img.width,h=img.height;if(w>mx||h>mx){if(w>h){h=Math.round(h*mx/w);w=mx;}else{w=Math.round(w*mx/h);h=mx;}}var cv=document.createElement('canvas');cv.width=w;cv.height=h;cv.getContext('2d').drawImage(img,0,0,w,h);NEWFILES.push({name:f.name||'תמונה',type:'img',url:cv.toDataURL('image/jpeg',0.8)});renderAdd();};img.src=rd.result;};rd.readAsDataURL(f);}else{var rd2=new FileReader();rd2.onload=function(){NEWFILES.push({name:f.name||'קובץ',type:'doc',url:rd2.result});renderAdd();};rd2.readAsDataURL(f);}}
+function doSave(){var inp=document.getElementById('newtask');var t=((inp?inp.value:NEWTEXT)||'').trim();if(!t){if(inp)inp.focus();return;}TASKS.push({t:t,done:false,who:NEWWHO,files:NEWFILES.slice(),due:NEWDUE,alert:NEWALERT,id:newId()});NEWTEXT='';NEWWHO='';NEWFILES=[];NEWDUE='';NEWALERT='';ADDING=false;persist();render();renderAdd();}
+function renderAdd(){var w=document.getElementById('addpanel');var tg=document.getElementById('addtoggle');if(!ADDING){w.style.display='none';w.innerHTML='';tg.style.display='';return;}tg.style.display='none';w.style.display='';var attHtml=NEWFILES.map(function(a,i){return a.type==='img'?'<div class="attchip"><img src="'+a.url+'"><button type="button" class="attx" onclick="rmNewFile('+i+')">×</button></div>':'<div class="attchip doc"><span>📄 '+esc(a.name)+'</span><button type="button" class="attx" onclick="rmNewFile('+i+')">×</button></div>';}).join('');
+w.innerHTML='<form id="addform2" autocomplete="off"><input type="text" id="newtask" placeholder="מה המשימה?" value="'+esc(NEWTEXT)+'" enterkeyhint="done" oninput="NEWTEXT=this.value"><div class="pickrow2"><span class="pklbl">מבצע:</span>'+allPeople().map(function(p){return '<button type="button" class="popt'+(NEWWHO===p?' sel':'')+'" onclick="setNewWho(\''+p+'\')">'+p+'</button>';}).join('')+'<button type="button" class="popt add" onclick="addPerson(\'new\')">＋ אחר</button></div><div class="daterow"><div class="datefld"><label>תאריך סיום</label><input type="date" id="newdue" value="'+esc(NEWDUE)+'" onchange="NEWDUE=this.value"></div><div class="datefld"><label>תאריך התראה</label><input type="date" id="newalert" value="'+esc(NEWALERT)+'" onchange="NEWALERT=this.value"></div></div><div class="attbtns"><button type="button" class="attb" onclick="document.getElementById(\'camIn\').click()">📷 צלם תמונה</button><button type="button" class="attb" onclick="document.getElementById(\'imgIn\').click()">🖼️ צרף תמונה</button><button type="button" class="attb" onclick="document.getElementById(\'docIn\').click()">📎 העלה קובץ</button></div><div class="attlist">'+attHtml+'</div><input type="file" id="camIn" accept="image/*" capture="environment" style="display:none" onchange="onFile(this,\'img\')"><input type="file" id="imgIn" accept="image/*" style="display:none" onchange="onFile(this,\'img\')"><input type="file" id="docIn" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.dwg" style="display:none" onchange="onFile(this,\'doc\')"><div class="addbtns"><button type="submit" class="sv2">➕ הוסף</button><button type="button" class="cn2" onclick="closeAdd()">ביטול</button></div></form>';var f=document.getElementById('addform2');f.addEventListener('submit',function(e){e.preventDefault();doSave();});var inp=document.getElementById('newtask');if(inp)inp.focus();}
+function toggle(id){var it=TASKS.find(function(x){return x.id===id;});if(it){it.done=!it.done;persist();render();}}
+function askDel(id){CONFIRMDEL=id;render();}
+function cancelDel(){CONFIRMDEL=-1;render();}
+function del(id){TASKS=TASKS.filter(function(x){return x.id!==id;});if(EDIT===id)EDIT=-1;CONFIRMDEL=-1;persist();render();}
+function startEdit(id){var it=TASKS.find(function(x){return x.id===id;});if(!it)return;EDIT=id;PICK=-1;EDTEXT=it.t||'';EDWHO=it.who||'';EDFILES=(it.files||[]).slice();EDDUE=it.due||'';EDALERT=it.alert||'';render();var inp=document.getElementById('ed_'+id);if(inp){inp.focus();inp.setSelectionRange(inp.value.length,inp.value.length);}}
+function setEdWho(p){EDWHO=(EDWHO===p?'':p);render();}
+function rmEdFile(i){EDFILES.splice(i,1);render();}
+function onEdFile(inp,kind){var f=inp.files&&inp.files[0];if(!f)return;inp.value='';if(kind==='img'){var img=new Image();var rd=new FileReader();rd.onload=function(){img.onload=function(){var mx=1200,w=img.width,h=img.height;if(w>mx||h>mx){if(w>h){h=Math.round(h*mx/w);w=mx;}else{w=Math.round(w*mx/h);h=mx;}}var cv=document.createElement('canvas');cv.width=w;cv.height=h;cv.getContext('2d').drawImage(img,0,0,w,h);EDFILES.push({name:f.name||'תמונה',type:'img',url:cv.toDataURL('image/jpeg',0.8)});render();};img.src=rd.result;};rd.readAsDataURL(f);}else{var rd2=new FileReader();rd2.onload=function(){EDFILES.push({name:f.name||'קובץ',type:'doc',url:rd2.result});render();};rd2.readAsDataURL(f);}}
+function saveEdit(id){var inp=document.getElementById('ed_'+id);var t=((inp?inp.value:EDTEXT)||'').trim();var it=TASKS.find(function(x){return x.id===id;});if(it){if(t){it.t=t;it.who=EDWHO;it.files=EDFILES.slice();it.due=EDDUE;it.alert=EDALERT;}else{TASKS=TASKS.filter(function(x){return x.id!==id;});}}EDIT=-1;persist();render();}
+function cancelEdit(){EDIT=-1;render();}
+function openPick(id){PICK=(PICK===id?-1:id);render();}
+function setWho(id,name){var it=TASKS.find(function(x){return x.id===id;});if(it){it.who=name;}PICK=-1;persist();render();}
+function render(){
+  var a=TASKS;
+  var open=a.filter(function(x){return !x.done;});
+  var done=a.filter(function(x){return x.done;});
+  var ordered=open.concat(done);
+  var box=document.getElementById('list');
+  if(a.length===0){box.innerHTML='<div class="empty">אין משימות עדיין — הוסף את הראשונה למעלה 👆</div>';document.getElementById('counter').textContent='';return;}
+  document.getElementById('counter').textContent='בוצע '+done.length+' / '+a.length;
+  box.innerHTML=ordered.map(function(x){
+    if(EDIT===x.id){
+      var eatt=EDFILES.map(function(a,i){return a.type==='img'?'<div class="attchip"><img src="'+a.url+'"><button type="button" class="attx" onclick="rmEdFile('+i+')">×</button></div>':'<div class="attchip doc"><span>📄 '+esc(a.name)+'</span><button type="button" class="attx" onclick="rmEdFile('+i+')">×</button></div>';}).join('');
+      return '<div class="task'+(x.done?' done':'')+'"><div class="addpanel" style="box-shadow:none;padding:0"><input type="text" id="ed_'+x.id+'" placeholder="מה המשימה?" value="'+esc(EDTEXT)+'" enterkeyhint="done" oninput="EDTEXT=this.value" onkeydown="if(event.key===\'Enter\')saveEdit(\''+x.id+'\')"><div class="pickrow2"><span class="pklbl">מבצע:</span>'+allPeople().map(function(p){return '<button type="button" class="popt'+(EDWHO===p?' sel':'')+'" onclick="setEdWho(\''+p+'\')">'+p+'</button>';}).join('')+'<button type="button" class="popt add" onclick="addPerson(\'ed\')">＋ אחר</button></div><div class="daterow"><div class="datefld"><label>תאריך סיום</label><input type="date" value="'+esc(EDDUE)+'" onchange="EDDUE=this.value"></div><div class="datefld"><label>תאריך התראה</label><input type="date" value="'+esc(EDALERT)+'" onchange="EDALERT=this.value"></div></div><div class="attbtns"><button type="button" class="attb" onclick="document.getElementById(\'ecamIn\').click()">📷 צלם תמונה</button><button type="button" class="attb" onclick="document.getElementById(\'eimgIn\').click()">🖼️ צרף תמונה</button><button type="button" class="attb" onclick="document.getElementById(\'edocIn\').click()">📎 העלה קובץ</button></div><div class="attlist">'+eatt+'</div><input type="file" id="ecamIn" accept="image/*" capture="environment" style="display:none" onchange="onEdFile(this,\'img\')"><input type="file" id="eimgIn" accept="image/*" style="display:none" onchange="onEdFile(this,\'img\')"><input type="file" id="edocIn" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.dwg" style="display:none" onchange="onEdFile(this,\'doc\')"><div class="addbtns"><button type="button" class="sv2" onclick="saveEdit(\''+x.id+'\')">שמור</button><button type="button" class="cn2" onclick="cancelEdit()">ביטול</button></div></div></div>';
+    }
+    var whoHtml = (PICK===x.id)
+      ? '<div class="pickrow">'+allPeople().map(function(p){return '<button class="popt'+(x.who===p?' sel':'')+'" onclick="setWho(\''+x.id+'\',\''+p+'\')">'+p+'</button>';}).join('')+'<button class="popt add" onclick="addPerson(\'pick\',\''+x.id+'\')">＋ אחר</button><button class="popt clr" onclick="setWho(\''+x.id+'\',\'\')">✕</button></div>'
+      : '<button class="who'+(x.who?' set':'')+'" onclick="openPick(\''+x.id+'\')">'+(x.who?'👤 '+esc(x.who):'👤 מבצע')+'</button>';
+    var atts=(x.files&&x.files.length)?'<div class="atts">'+x.files.map(function(a){return a.type==='img'?'<a href="'+a.url+'" target="_blank" class="attthumb"><img src="'+a.url+'"></a>':'<a href="'+a.url+'" download="'+esc(a.name)+'" target="_blank" class="attdoc">📄 '+esc(a.name)+'</a>';}).join('')+'</div>':'';
+    var dch='';
+    if(x.due) dch+='<span class="dchip due'+((!x.done&&isHot(x.due))?' hot':'')+'">📅 סיום '+fmtD(x.due)+'</span>';
+    if(x.alert) dch+='<span class="dchip alert'+((!x.done&&isHot(x.alert))?' hot':'')+'">🔔 התראה '+fmtD(x.alert)+'</span>';
+    var dates=dch?'<div class="dchips">'+dch+'</div>':'';
+    var alerting=(!x.done&&(isHot(x.alert)||isHot(x.due)));
+    return '<div class="task'+(x.done?' done':'')+(alerting?' alerting':'')+'">'
+      +'<div class="taskrow">'
+      +'<div class="txt" onclick="startEdit(\''+x.id+'\')" style="cursor:pointer">'+esc(x.t)+'</div>'
+      +'<div class="ctrls">'
+      +whoHtml
+      +'<button class="dbtn'+(x.done?' on':'')+'" onclick="toggle(\''+x.id+'\')">'+(x.done?'בוצע ✓':'לא בוצע')+'</button>'
+      +'<button class="ibtn" onclick="startEdit(\''+x.id+'\')">✎</button>'
+      +(CONFIRMDEL===x.id
+        ? '<button class="cdel" onclick="del(\''+x.id+'\')">מחק</button><button class="ckeep" onclick="cancelDel()">ביטול</button>'
+        : '<button class="ibtn del" onclick="askDel(\''+x.id+'\')">×</button>')
+      +'</div></div>'
+      +dates
+      +atts
+      +'</div>';
+  }).join('');
+}
+function doOpen(e){if(e){e.preventDefault();e.stopPropagation();}var now=Date.now();if(now-(window.__lastOpen||0)<350)return;window.__lastOpen=now;openAdd();}
+var tg=document.getElementById('addtoggle');tg.addEventListener('click',doOpen);tg.addEventListener('touchend',doOpen);
+render();renderAdd();
+</script>
+</body>
+</html>
