@@ -50,6 +50,8 @@ body{font-family:'Heebo',sans-serif;background:#cdd9ea;min-height:100vh;color:#1
 .who{border:none;background:#eef1f6;color:#48566b;font-size:12px;font-weight:800;padding:8px 11px;border-radius:8px;cursor:pointer;font-family:'Heebo',sans-serif;white-space:nowrap}
 .who.set{background:#2f74c0;color:#fff}
 .pickrow{display:flex;gap:5px;flex-wrap:wrap;align-items:center}
+.pickbar{display:flex;gap:5px;flex-wrap:wrap;align-items:center;margin-top:10px;padding-top:10px;border-top:1px solid #eef1f6}
+.task .txt{min-width:0}
 .popt{border:none;background:#eef1f6;color:#33415a;font-size:12px;font-weight:800;padding:8px 10px;border-radius:8px;cursor:pointer;font-family:'Heebo',sans-serif;white-space:nowrap}
 .popt.sel{background:#2f74c0;color:#fff}
 .popt.clr{background:#f2dede;color:#b5231b}
@@ -146,9 +148,8 @@ function render(){
       var eatt=EDFILES.map(function(a,i){return a.type==='img'?'<div class="attchip"><img src="'+a.url+'"><button type="button" class="attx" onclick="rmEdFile('+i+')">×</button></div>':'<div class="attchip doc"><span>📄 '+esc(a.name)+'</span><button type="button" class="attx" onclick="rmEdFile('+i+')">×</button></div>';}).join('');
       return '<div class="task'+(x.done?' done':'')+'"><div class="addpanel" style="box-shadow:none;padding:0"><input type="text" id="ed_'+x.id+'" placeholder="מה המשימה?" value="'+esc(EDTEXT)+'" enterkeyhint="done" oninput="EDTEXT=this.value" onkeydown="if(event.key===\'Enter\')saveEdit(\''+x.id+'\')"><div class="pickrow2"><span class="pklbl">מבצע:</span>'+allPeople().map(function(p){return '<button type="button" class="popt'+(EDWHO===p?' sel':'')+'" onclick="setEdWho(\''+p+'\')">'+p+'</button>';}).join('')+'<button type="button" class="popt add" onclick="addPerson(\'ed\')">＋ אחר</button></div><div class="daterow"><div class="datefld"><div class="lbr"><label>תאריך סיום</label>'+(EDDUE?'<button type="button" class="clrd" onclick="EDDUE=\'\';render()">✕ נקה</button>':'')+'</div><input type="date" value="'+esc(EDDUE)+'" onchange="EDDUE=this.value;render()"></div><div class="datefld"><div class="lbr"><label>תאריך התראה</label>'+(EDALERT?'<button type="button" class="clrd" onclick="EDALERT=\'\';render()">✕ בטל התראה</button>':'')+'</div><input type="date" value="'+esc(EDALERT)+'" onchange="EDALERT=this.value;render()"></div></div><div class="attbtns"><button type="button" class="attb" onclick="document.getElementById(\'ecamIn\').click()">📷 צלם תמונה</button><button type="button" class="attb" onclick="document.getElementById(\'eimgIn\').click()">🖼️ צרף תמונה</button><button type="button" class="attb" onclick="document.getElementById(\'edocIn\').click()">📎 העלה קובץ</button></div><div class="attlist">'+eatt+'</div><input type="file" id="ecamIn" accept="image/*" capture="environment" style="display:none" onchange="onEdFile(this,\'img\')"><input type="file" id="eimgIn" accept="image/*" style="display:none" onchange="onEdFile(this,\'img\')"><input type="file" id="edocIn" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.dwg" style="display:none" onchange="onEdFile(this,\'doc\')"><div class="addbtns"><button type="button" class="sv2" onclick="saveEdit(\''+x.id+'\')">שמור</button><button type="button" class="cn2" onclick="cancelEdit()">ביטול</button></div></div></div>';
     }
-    var whoHtml = (PICK===x.id)
-      ? '<div class="pickrow">'+allPeople().map(function(p){return '<button class="popt'+(x.who===p?' sel':'')+'" onclick="setWho(\''+x.id+'\',\''+p+'\')">'+p+'</button>';}).join('')+'<button class="popt add" onclick="addPerson(\'pick\',\''+x.id+'\')">＋ אחר</button><button class="popt clr" onclick="setWho(\''+x.id+'\',\'\')">✕</button></div>'
-      : '<button class="who'+(x.who?' set':'')+'" onclick="openPick(\''+x.id+'\')">'+(x.who?'👤 '+esc(x.who):'👤 מבצע')+'</button>';
+    var whoHtml = '<button class="who'+(x.who?' set':'')+'" onclick="openPick(\''+x.id+'\')">'+(x.who?'👤 '+esc(x.who):'👤 מבצע')+'</button>';
+    var pickBar = (PICK===x.id) ? '<div class="pickbar">'+allPeople().map(function(p){return '<button class="popt'+(x.who===p?' sel':'')+'" onclick="setWho(\''+x.id+'\',\''+p+'\')">'+p+'</button>';}).join('')+'<button class="popt add" onclick="addPerson(\'pick\',\''+x.id+'\')">＋ אחר</button><button class="popt clr" onclick="setWho(\''+x.id+'\',\'\')">✕</button></div>' : '';
     var atts=(x.files&&x.files.length)?'<div class="atts">'+x.files.map(function(a){return a.type==='img'?'<a href="'+a.url+'" target="_blank" class="attthumb"><img src="'+a.url+'"></a>':'<a href="'+a.url+'" download="'+esc(a.name)+'" target="_blank" class="attdoc">📄 '+esc(a.name)+'</a>';}).join('')+'</div>':'';
     var dch='';
     if(x.due) dch+='<span class="dchip due'+((!x.done&&isHot(x.due))?' hot':'')+'">📅 סיום '+fmtD(x.due)+'</span>';
@@ -167,6 +168,7 @@ function render(){
         ? '<button class="cdel" onclick="del(\''+x.id+'\')">מחק</button><button class="ckeep" onclick="cancelDel()">ביטול</button>'
         : '<button class="ibtn del" onclick="askDel(\''+x.id+'\')">×</button>')
       +'</div></div>'
+      +pickBar
       +dates
       +atts
       +'</div>';
