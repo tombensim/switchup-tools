@@ -1,0 +1,800 @@
+<!doctype html><html lang="he" dir="rtl"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>הצעות מחיר · בינוי</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;font-family:-apple-system,"Segoe UI",Rubik,Arial,sans-serif;background:#eef1f6;color:#16202e;padding-bottom:140px}
+header{background:linear-gradient(135deg,#1d2b45,#2f4a75);color:#fff;padding:13px 14px 12px}
+header h1{margin:0;font-size:18px;font-weight:800;letter-spacing:-.3px}
+header .sub{font-size:11.5px;opacity:.78;margin-top:2px}
+.meta{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+.meta input{border:0;border-radius:9px;padding:9px 11px;font-size:14px;font-family:inherit;background:rgba(255,255,255,.16);color:#fff}
+.meta input::placeholder{color:rgba(255,255,255,.62)}
+.m1{flex:1 1 100%}.m2{flex:1 1 30%}
+.meta .sel{border:0;border-radius:9px;padding:9px 11px;font-size:14px;font-family:inherit;background:rgba(255,255,255,.16);color:#fff;-webkit-appearance:none;appearance:none}
+.meta .sel option{color:#16202e}
+.rfw{display:flex;gap:5px;margin-top:5px;flex-wrap:wrap}
+.rfb{border:1px solid #cfe0f5;background:#f3f8ff;color:#2f74c0;border-radius:8px;padding:4px 9px;font-size:11.5px;font-weight:800;font-family:inherit}
+.rfb.on{background:#f3f8ff;color:#2f74c0;border-color:#cfe0f5}
+.rfb.rfempty{background:#fff;color:#8b95a6;border:1px dashed #c2ccdb}
+.qw{display:flex;gap:6px;align-items:center}
+.line .qt{width:52px;text-align:center;border:1px solid #dfe5ee;border-radius:9px;padding:7px 4px;font-size:13px;font-family:inherit;background:#fff}
+.line .tt{min-width:74px;text-align:left;font-weight:900;font-size:13px;color:#1d2b45}
+.hnote{font-size:11px;color:#7a8698;margin-top:3px}
+.bigbtn.fin{background:#1e9e57;font-size:16.5px;padding:16px}
+.hrow{display:flex;justify-content:space-between;padding:8px 11px;border-bottom:1px solid #f1f4f9;font-size:13.5px}
+.qrow .pv{border:1px solid #cfe0f5;background:#f3f8ff;color:#2f74c0;border-radius:9px;padding:6px 9px;font-size:12px;font-weight:800;font-family:inherit;white-space:nowrap}
+.pvbox{max-height:62vh;overflow:auto;background:#fff;border:1px solid #e3e8f0;border-radius:10px;padding:12px;margin-bottom:10px}
+.pvbox table{width:100%;border-collapse:collapse;font-size:12px}
+.pvbox th{background:#f0f4fa;text-align:right;padding:5px 7px;border-bottom:1px solid #d7deea}
+.pvbox td{padding:4px 7px;border-bottom:1px solid #eef1f6}
+.pvbox td.v{text-align:left;font-weight:700;white-space:nowrap}
+.pvbox tr.zt td{background:#f6f8fc;font-weight:800}
+.pvbox .ph h2{margin:0;font-size:18px}
+.pvbox .tots div{display:flex;justify-content:space-between;padding:4px 0;font-size:13px}
+.pvbox .tots div.f{border-top:2px solid #1d2b45;font-weight:900}
+.pvbox .nt{margin-top:10px;font-size:11px;color:#c0392b;font-weight:700;white-space:pre-wrap}
+.pvbox .nt b,#pv .nt b{display:block;margin-bottom:3px}
+.qtag{margin-top:5px;display:inline-block;background:#fff6e6;color:#c07f18;border:1px solid #f2dfb8;border-radius:8px;padding:3px 8px;font-size:11px;font-weight:800}
+.line.qm{background:#fffdf7}
+.undo{padding:7px 11px 9px;background:#fbfcfe;border-bottom:1px solid #f2f5fa}
+.undo>button{width:100%;border:1px dashed #e0c9c9;background:#fffaf8;color:#a8615f;border-radius:9px;padding:7px;font-size:12px;font-weight:700;font-family:inherit}
+.urow{display:flex;align-items:center;gap:8px;padding:6px 4px;font-size:12.5px;color:#8b95a6}
+.urow span{flex:1;text-decoration:line-through}
+.urow button{border:1px solid #bfe6cd;background:#f2fbf5;color:#1e9e57;border-radius:8px;padding:5px 10px;font-size:11.5px;font-weight:800;font-family:inherit}
+.wrap{padding:11px}
+.card{background:#fff;border-radius:14px;box-shadow:0 2px 10px rgba(20,35,60,.08);margin-bottom:11px;overflow:hidden}
+.zh{display:flex;align-items:center;gap:8px;padding:12px 13px;background:#f4f7fc;border-bottom:1px solid #e6ebf3}
+.zh .cv{font-size:17px;font-weight:900;color:#2f4a75;width:34px;height:34px;line-height:32px;text-align:center;background:#fff;border:1.5px solid #c8d4e6;border-radius:9px;flex:none;margin-left:4px}
+.zh .cvsep{width:1px;align-self:stretch;background:#dde4ee;margin-left:6px;flex:none}
+.zh input{flex:1;border:0;background:transparent;font-size:16px;font-weight:800;font-family:inherit;color:#16202e;min-width:0}
+.zh .zsum{font-size:14.5px;font-weight:800;color:#2f4a75;white-space:nowrap}
+.zh .x{background:#fdeaea;color:#c33;border:0;border-radius:8px;width:27px;height:27px;font-size:14px;font-weight:700;flex:none}
+.zbody{display:none}.zbody.open{display:block}
+body.searching .zbody{display:block !important}
+.catsearch{display:flex;gap:6px;align-items:center;margin:2px 0 4px}
+.catsearch input{flex:1;border:1.5px solid #c9d3e2;border-radius:10px;padding:11px 13px;font-size:15px;font-family:inherit;background:#fff;outline:none}
+.catsearch input:focus{border-color:#2f4a75}
+.catsearch .catclr{border:none;background:#e3e8f0;color:#5a6576;width:38px;height:40px;border-radius:10px;font-size:16px;font-weight:800;cursor:pointer}
+#catRes{background:#fff;border:1.5px solid #dbe2ee;border-radius:12px;margin-bottom:8px;overflow:hidden;box-shadow:0 4px 14px rgba(20,40,80,.08)}
+#catRes .crHd{font-size:11px;font-weight:800;color:#8b95a6;padding:8px 12px 4px;letter-spacing:.4px}
+.crRow{display:flex;align-items:center;gap:8px;padding:9px 12px;border-top:1px solid #f2f5fa}
+.crNm{flex:1;font-size:14px;font-weight:600;color:#16202e}
+.crNm .crCat{display:inline-block;font-size:10.5px;font-weight:700;color:#7a879b;background:#eef2f8;border-radius:6px;padding:1px 7px;margin-inline-start:7px}
+.crPr{font-size:13px;font-weight:800;color:#2f4a75;white-space:nowrap}
+.crAdd{border:none;background:#2f4a75;color:#fff;width:34px;height:34px;border-radius:9px;font-size:19px;font-weight:800;cursor:pointer;line-height:1}
+.crEmpty{padding:13px;color:#8b95a6;font-size:13px;text-align:center}
+.grp{font-size:11px;font-weight:800;color:#8b95a6;letter-spacing:.4px;padding:9px 13px 3px;background:#fbfcfe}
+.nmrow{display:flex;align-items:center;gap:6px;width:100%}
+.nmtxt{cursor:pointer;display:inline-block}
+.nmedit{flex:1;min-width:0;width:100%;border:1.5px solid #c9d3e2;border-radius:8px;padding:7px 9px;font-size:14px;font-family:inherit;color:#16202e;background:#fff;outline:none}
+.nmedit:focus{border-color:#2f4a75;background:#fbfdff}
+.nmdone{border:none;background:#d9ecdd;color:#127a41;width:30px;height:32px;border-radius:7px;font-size:16px;font-weight:800;cursor:pointer;flex:0 0 auto}
+.nmdel{border:none;background:#f3d6d6;color:#b5231b;width:30px;height:32px;border-radius:7px;font-size:16px;font-weight:800;cursor:pointer;flex:0 0 auto}
+.line{display:flex;align-items:center;gap:6px;padding:8px 11px;border-bottom:1px solid #f2f5fa}
+.line .nm{flex:1;font-size:13.5px;line-height:1.28;min-width:0}
+.line.editing{flex-wrap:wrap}
+.line.editing .nm{flex:1 1 100%}
+.line.editing .qw{flex:1 1 100%;justify-content:flex-end;margin-top:4px}
+.line .rf{font-size:10.5px;color:#a9b2c0;margin-top:1px}
+.line .pr{width:84px;border:1px solid #dde4ee;border-radius:8px;padding:6px 3px;font-size:14px;font-family:inherit;text-align:center;background:#fff;flex:none}
+.line .pr::placeholder{color:#c8cfda}
+.line .bt{display:flex;gap:5px;flex:none}
+.line .ok{border:1px solid #bfe6cd;background:#f2fbf5;color:#1e9e57;border-radius:9px;padding:6px 8px;font-size:11.5px;font-weight:800;font-family:inherit;white-space:nowrap}
+.line .no{border:1px solid #f0cfcf;background:#fdf5f5;color:#c33;border-radius:9px;padding:6px 8px;font-size:11.5px;font-weight:800;font-family:inherit;white-space:nowrap}
+.line .td{border:1px solid #f2c2c2;background:#e05a5a;color:#fff;border-radius:9px;padding:6px 12px;font-size:11.5px;font-weight:800;font-family:inherit;white-space:nowrap}
+.line.todo{background:#fff5f5}
+.line.todo .nm{color:#b03a3a}
+.dgrp{font-size:11.5px;font-weight:800;color:#1e9e57;padding:7px 4px 4px;border-top:1px dashed #cfe9d8;margin-top:4px}
+.line.done{background:#eefaf1}
+.line.done .ok{background:#1e9e57;border-color:#1e9e57;color:#fff}
+.line.done .nm{color:#127a41}
+.line.genl{background:#eef4fd}
+.line.genl .nm{color:#2f6bbf;font-weight:700}
+.line.genl .tag{font-size:10.5px;color:#2f6bbf;font-weight:800;margin-top:2px}
+.mlw{margin-top:4px}
+.mlbtn{border:1px dashed #d9b8e8;background:#faf5ff;color:#8e44ad;border-radius:8px;padding:3px 9px;font-size:11px;font-weight:800;font-family:inherit}
+.mlnote{font-size:11.5px;color:#8e44ad;margin-top:3px;font-weight:600}
+.zfoot{display:flex;justify-content:space-between;align-items:center;padding:11px 13px;background:#f4f7fc;border-top:1px solid #e6ebf3;font-size:15px;font-weight:800;color:#1d2b45}
+.zfoot .prog{font-size:11.5px;font-weight:700;color:#1e9e57}
+.addrow{padding:8px 11px}
+.addrow button{width:100%;border:1px dashed #b9c6db;background:#fafcff;color:#2f4a75;border-radius:10px;padding:9px;font-size:13px;font-weight:700;font-family:inherit}
+.bigbtn{width:100%;border:0;border-radius:12px;padding:14px;font-size:15.5px;font-weight:800;font-family:inherit;background:#2f4a75;color:#fff;margin-bottom:11px}
+.bigbtn.alt{background:#fff;color:#2f4a75;border:1.5px solid #c8d4e6}
+.bigbtn.grn{background:#1e9e57}
+.bigbtn.pdf{background:#c0562f}
+.bigbtn.pdf2{background:#0f8fa8}
+.bigbtn.red{background:#e05a5a}
+.bigbtn.arc{background:#6b53b8}
+.bigbtn.wp{background:#2f6fed}
+.grp.gcl{cursor:pointer;display:flex;align-items:center;justify-content:space-between}
+.gcv{font-size:15px;opacity:.75;margin-inline-start:8px}
+.wphd{margin-bottom:12px}
+.wpt{font-size:18px;font-weight:900;color:#1d2b45;margin-bottom:8px}
+.wpbar{height:12px;background:#e6ecf5;border-radius:8px;overflow:hidden}
+.wpfill{height:100%;background:#1e9e57;transition:width .2s}
+.wpc{font-size:13px;color:#4a5568;font-weight:700;margin-top:6px}
+.wpg{background:#f0f4fa;font-weight:800;color:#1d2b45;padding:8px 10px;border-radius:8px;margin:12px 0 6px;font-size:14px}
+.wprow{display:flex;align-items:center;gap:10px;padding:12px 10px;border:1.5px solid #e2e8f2;border-radius:10px;margin-bottom:7px;cursor:pointer;background:#fff}
+.wprow.done{background:#eafaf1;border-color:#9fe3c0}
+.wpck{width:26px;height:26px;min-width:26px;border-radius:7px;border:2px solid #c3ccdb;display:flex;align-items:center;justify-content:center;font-size:16px;color:#1e9e57;font-weight:900}
+.wprow.done .wpck{background:#1e9e57;border-color:#1e9e57;color:#fff}
+.wpn{flex:1;font-size:14.5px;font-weight:700;color:#1d2b45}
+.wprow.done .wpn{text-decoration:line-through;color:#6b7688}
+.wpst{font-size:12px;font-weight:800;color:#e0a800}
+.wprow.done .wpst{color:#1e9e57}
+.qrow{display:block;padding:10px 6px;border-bottom:1px solid #f0f3f8}
+.qrow .qtop{display:flex;align-items:center;gap:8px}
+.qrow .qact{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px}
+.qrow .wpb{background:#2f6fed;color:#fff}
+.qrow .qn{flex:1;font-size:13.5px;font-weight:700;color:#25324a}
+.qrow .qd{font-size:11px;color:#8b95a6;font-weight:600}
+.qrow button{border:0;border-radius:8px;padding:6px 11px;font-size:12px;font-weight:800;font-family:inherit}
+.qrow .ld{background:#2f74c0;color:#fff}
+.qrow .dl{background:#fdeaea;color:#c0392b}
+.row2{display:flex;gap:8px;margin-bottom:11px}.row2 .bigbtn{margin:0;flex:1}
+.row3{display:flex;gap:7px;margin-bottom:11px}.row3 .bigbtn{margin:0;flex:1;padding:12px 4px;font-size:13.5px}
+.atts{display:flex;flex-wrap:wrap;gap:8px;padding:10px}
+.att{position:relative;width:74px}
+.att img{width:74px;height:74px;object-fit:cover;border-radius:10px;border:1px solid #e0e6f0;display:block}
+.att .fi{width:74px;height:74px;border-radius:10px;border:1px solid #e0e6f0;background:#f6f8fc;display:flex;align-items:center;justify-content:center;font-size:24px}
+.att .cap{font-size:9.5px;color:#8b95a6;text-align:center;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.att .rm{position:absolute;top:-6px;left:-6px;background:#e05a5a;color:#fff;border:0;border-radius:50%;width:21px;height:21px;font-size:12px;font-weight:800;line-height:1}
+.empt{padding:16px;text-align:center;color:#8b95a6;font-size:13px}
+.sec{font-size:11.5px;font-weight:800;color:#7a879b;letter-spacing:.5px;margin:16px 4px 7px}
+.agg{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:#eef4fd;border-bottom:1px solid #e0e9f7;font-size:13.5px}
+.agg .an,.agg .av{color:#2f6bbf;font-weight:800}
+textarea{width:100%;border:0;padding:11px;font-size:13px;font-family:inherit;line-height:1.55;min-height:86px;resize:vertical}
+footer{position:fixed;bottom:0;right:0;left:0;background:#16202e;color:#fff;padding:9px 14px;box-shadow:0 -3px 14px rgba(0,0,0,.22);z-index:50}
+.frow{display:flex;justify-content:space-between;align-items:center;font-size:13.5px;padding:2px 0}
+.frow.big{font-size:19px;font-weight:900;padding-top:6px;margin-top:4px;border-top:1px solid rgba(255,255,255,.2)}
+.frow input{width:48px;text-align:center;border:0;border-radius:6px;padding:3px;font-size:13px;font-family:inherit;background:rgba(255,255,255,.16);color:#fff}
+.bar{height:5px;background:rgba(255,255,255,.15);border-radius:3px;margin-top:6px;overflow:hidden}
+.bar i{display:block;height:100%;background:#35d07f;width:0}
+.prg{font-size:11.5px;color:#9fe8c1;padding-top:4px}
+.modal{position:fixed;inset:0;background:rgba(10,18,30,.55);z-index:99;display:none}
+.modal.on{display:block}
+.sheet{position:absolute;bottom:0;right:0;left:0;background:#fff;border-radius:18px 18px 0 0;max-height:88%;overflow:auto;padding:14px}
+.sheet h3{margin:2px 0 10px;font-size:17px}
+.close{width:100%;border:0;border-radius:12px;padding:13px;background:#eef1f6;color:#16202e;font-weight:800;font-size:15px;font-family:inherit;margin-top:10px}
+pre.out{white-space:pre-wrap;font-family:inherit;font-size:12.5px;line-height:1.6;background:#fbfcfe;border-radius:12px;padding:12px;border:1px solid #e6ebf3}
+.srow{display:flex;justify-content:space-between;padding:9px 11px;border-bottom:1px solid #f1f4f9;font-size:14px}
+.srow b{font-weight:800;color:#2f4a75}
+.srow.tot{background:#16202e;color:#fff;border-radius:10px;margin-top:8px;font-size:17px;font-weight:900;border:0}
+.srow.tot b{color:#fff}
+.stbl{border:1px solid #e6ebf3;border-radius:12px;overflow:hidden}
+#pv{display:none}
+@media print{
+  body{background:#fff;padding:0}
+  header,.wrap,footer,.modal{display:none !important}
+  #pv{display:block !important;padding:0}
+  @page{size:A4;margin:14mm}
+}
+#pv .ph{border-bottom:3px solid #2f4a75;padding-bottom:8px;margin-bottom:12px}
+#pv .ph h2{margin:0;font-size:22px;color:#1d2b45}
+#pv .ph .pm{font-size:13px;color:#4a5568}
+#pv table.det{width:100%;border:1px solid #dde4ee;border-radius:6px}
+#pv table.det td{border-bottom:1px solid #eef1f6;font-size:12.5px;padding:5px 8px}
+#pv table{width:100%;border-collapse:collapse;font-size:12.5px}
+#pv th{background:#f0f4fa;text-align:right;padding:6px 8px;border-bottom:1px solid #d7deea;font-size:12px}
+#pv td{padding:5px 8px;border-bottom:1px solid #eef1f6}
+#pv td.v{text-align:left;white-space:nowrap;font-weight:700}
+#pv tr.zt td{background:#f6f8fc;font-weight:800;color:#1d2b45}
+#pv tr.gl td{color:#2f6bbf}
+#pv .tots{margin-top:14px;width:60%;margin-right:auto}
+#pv .tots div{display:flex;justify-content:space-between;padding:5px 0;font-size:13.5px}
+#pv .tots div.f{border-top:2px solid #1d2b45;margin-top:5px;padding-top:8px;font-size:16px;font-weight:900}
+#pv .nt{margin-top:16px;font-size:12px;color:#c0392b;font-weight:700;white-space:pre-wrap;line-height:1.6;border-top:1px solid #e6b0aa;padding-top:10px}
+</style></head><body>
+<header>
+<h1>הצעות מחיר · בינוי</h1>
+<div class="sub">SwitchUP · תמחור ומעקב ביצוע לפי איזורים · לפני מע״מ</div>
+<div class="meta">
+<input class="m1" id="mProj" placeholder="שם הפרויקט">
+<input class="m1" id="mCli" placeholder="שם הלקוח">
+<input class="m2" id="mAddr" placeholder="כתובת">
+<input class="m2" id="mDate" type="text" placeholder="תאריך שליחת ההצעה" onfocus="this.type='date';try{this.showPicker&&this.showPicker()}catch(e){}" onblur="if(!this.value)this.type='text'">
+<select class="m1 sel" id="mPm" onchange="save();"><option value="">מנהל פרויקט…</option><option>נמו</option><option>יעל</option><option>ניר</option></select>
+</div>
+</header>
+<div class="wrap">
+<div class="catsearch"><input id="catQ" placeholder="🔍 חיפוש בכל המחירון…" oninput="filterCat()"><button class="catclr" onclick="document.getElementById('catQ').value='';filterCat();">✕</button></div>
+<div id="catRes" style="display:none"></div>
+<div class="sec">סעיפים כלליים (קומה)</div>
+<div id="genc"></div>
+<div class="sec">קבצים ותמונות</div>
+<div class="card" id="attBox"></div>
+<input type="file" id="fFile" style="display:none" multiple onchange="pick(this)">
+<input type="file" id="fImg" accept="image/*" style="display:none" multiple onchange="pick(this)">
+<div class="row3">
+<button class="bigbtn alt" onclick="document.getElementById('fFile').click()">📎 קובץ</button>
+<button class="bigbtn alt" onclick="document.getElementById('fImg').click()">🖼 תמונה</button>
+</div>
+<div class="sec">הערות וסייגים</div>
+<div class="card"><textarea id="mNote"></textarea></div>
+<div class="sec">איזורים</div>
+<div id="zones"></div>
+<div class="row3"><button class="bigbtn" onclick="addZone()">+ פתח איזור</button><button class="bigbtn red" onclick="cancelZone()">✕ בטל איזור</button><button class="bigbtn alt" onclick="resetZone()">↺ אפס איזור</button></div><button class="bigbtn alt" onclick="collapseAll()" id="colAllBtn">⊟ סגור את כל הקטגוריות והאיזורים</button>
+<div id="gtot"></div>
+<div class="sec">פעולות</div>
+<button class="bigbtn fin" onclick="finishQuote()">✔ סיים הצעת מחיר</button>
+<div class="row2"><button class="bigbtn pdf" onclick="makePDF(0)">📄 PDF – הצעה</button><button class="bigbtn pdf2" onclick="makePDF(1)">📄 PDF – מרוכז</button></div>
+<div class="row2"><button class="bigbtn arc" onclick="openArchive()">📂 הצעות שמורות</button><button class="bigbtn red" onclick="resetAll()">＋ הצעה חדשה</button></div>
+<button class="bigbtn wp" onclick="openWorkplan()">🗂 הפוך לתוכנית עבודה</button>
+</div>
+<footer>
+<div class="frow"><span>סה״כ סעיפים</span><span id="fBase">0 ₪</span></div>
+<div class="frow"><span>בצ״מ <input id="fBz" type="number" inputmode="numeric" value="10" oninput="save();render()">%</span><span id="fBzv">0 ₪</span></div>
+<div class="frow big"><span>סה״כ לפני מע״מ</span><span id="fTot">0 ₪</span></div>
+<div class="frow"><span>כולל מע״מ 18%</span><span id="fVat">0 ₪</span></div>
+
+</footer>
+
+<div class="modal" id="mod5"><div class="sheet">
+<h3>תצוגה מקדימה – לפני הדפסה</h3>
+<div id="pvBox" class="pvbox"></div>
+<div class="row2"><button class="bigbtn pdf" onclick="doPrint()">🖨 הדפס / שמור PDF</button><button class="bigbtn alt" onclick="document.getElementById('mod5').classList.remove('on')">סגור</button></div>
+</div></div>
+<div class="modal" id="mod4"><div class="sheet">
+<h3>הצעות שמורות</h3>
+<div id="arcBox"></div>
+<button class="close" onclick="document.getElementById('mod4').classList.remove('on')">סגור</button>
+</div></div>
+<div class="modal" id="mod6"><div class="sheet">
+<h3>תוכנית עבודה</h3>
+<div id="wpBox"></div>
+<div class="row2"><button class="bigbtn pdf" onclick="wpPrint()">🖨 הדפס / שמור PDF</button><button class="bigbtn alt" onclick="document.getElementById('mod6').classList.remove('on')">סגור</button></div>
+</div></div>
+<div class="modal" id="mod2"><div class="sheet">
+<h3>הצעת המחיר</h3><pre class="out" id="outTxt"></pre>
+<button class="close" onclick="document.getElementById('mod2').classList.remove('on')">סגור</button>
+</div></div>
+
+<div class="modal" id="mod3"><div class="sheet">
+<h3>סיכום כללי</h3><div id="sumBox"></div>
+<button class="close" onclick="document.getElementById('mod3').classList.remove('on')">סגור</button>
+</div></div>
+
+<div id="pv"></div>
+
+<script>
+var CATALOG=[{"g":"פירוקים והריסות","items":[{"n":"פירוקים והובלות כלליות","ref":500},{"n":"פירוק אינובייט","ref":1600},{"n":"פירוק אינובייט עד 5 מ׳","ref":2800},{"n":"פירוק קיר גבס","ref":2000},{"n":"פירוק מחיצה + דלת + גבס","ref":3000},{"n":"פירוק סינר","ref":3000},{"n":"פירוק נגרות (שולחן/ספסלים) כולל מכולה","ref":3000},{"n":"פירוק תאורה קיימת","ref":2000},{"n":"פינוי חדר כושר קיים","ref":null}]},{"g":"גבס · בנייה · גמר","items":[{"n":"תיקוני גבס לאחר פירוק אינובייט (ללא סינרים)","ref":2000},{"n":"תיקוני גבס לאחר פירוקים","ref":2000},{"n":"בניית קירות","ref":8000},{"n":"הנמכת תקרה","ref":3000},{"n":"השלמת ספוגים","ref":1500},{"n":"חשיפת ספוגים בחדר (תוספת)","ref":3000},{"n":"השלמת פרקט","ref":1500},{"n":"השלמת פלח מתכת","ref":2000},{"n":"התקנת לבד כולל חומר","ref":1700},{"n":"הסרת לבד","ref":null},{"n":"חיזוק לטלוויזיה לקיר קיים","ref":null},{"n":"הכנה לקיר טפט (בונדרול)","ref":null}]},{"g":"חשמל ותאורה","items":[{"n":"התאמות חשמל – בסיסי","ref":700},{"n":"התאמות חשמל (סימבוקס/הזנת שולחן/חדר מנהל)","ref":1500},{"n":"ביטול חשמל מהרצפה","ref":1000},{"n":"התאמות חשמל ותאורה (חדר רטוב/מקלחת)","ref":5000},{"n":"התאמות חשמל לעמדות עבודה חדשות","ref":2000},{"n":"התקנת תאורה","ref":5000},{"n":"העברת מתג תאורה","ref":2000},{"n":"פרט הדלקה","ref":1000},{"n":"ביטול תרמוסטט","ref":2000},{"n":"פירוק גופי תאורה קיימים","ref":500},{"n":"הוספת חשמל ותקשורת – חדר ישיבות","ref":null},{"n":"תוספת שקע כוח מארון חשמל","ref":null},{"n":"חשמל – הכנה למקרן","ref":null},{"n":"ביטול חשמל/סימבוקס","ref":null},{"n":"התאמות חשמל – על ידי תעלת דריכה","ref":null},{"n":"שרשור סימבוקס לשולחן חדר ישיבות","ref":null},{"n":"שרשור חשמל מטלוויזיה לשולחן חדר ישיבות","ref":null},{"n":"הוספת מתג תאורה","ref":null},{"n":"סימבוקס לטלוויזיה כולל HDMI ותקשורת","ref":null},{"n":"שרשור סימבוקס לחדר ישיבות על ידי תעלת דריכה","ref":null},{"n":"שרשור משולחן חדר ישיבות לטלוויזיה על ידי תעלת דריכה","ref":null},{"n":"שרשור לשולחן חדר ישיבות על ידי תעלת דריכה","ref":null},{"n":"שרשור סימבוקס","ref":null}]},{"g":"מיזוג ואוורור","items":[{"n":"התקנת מזגן","ref":2000},{"n":"הזזת מזגן","ref":2000},{"n":"העברת תרמוסטט","ref":1500},{"n":"התקנת וונטה","ref":3000},{"n":"קיצור תעלת מיזוג","ref":null},{"n":"הזזת יחידת אינובייט","ref":null},{"n":"פינוי עשן / ארובה","ref":null},{"n":"כיבוי בגז","ref":null}]},{"g":"ריצוף וחיפוי","items":[{"n":"ריצוף קרמיקה לחדר כולל פירוק ופינוי פרקט קיים","ref":20000},{"n":"ריצוף רצפה + חיפוי חצי גובה (חדר רטוב)","ref":10000},{"n":"ריצוף אנטיסטטי","ref":6000},{"n":"חיפוי קיר מטבח","ref":null},{"n":"חיפוי מטבח","ref":null},{"n":"סגירת חור ברצפה בדבק קרמיקה","ref":0}]},{"g":"אינסטלציה","items":[{"n":"דוד מים","ref":7000},{"n":"נקודות מים","ref":4000},{"n":"ניקוז (כולל הגבהה למקלחת)","ref":4000},{"n":"התקנת כיור מקלחון ואביזרי מקלחת (ללא אביזרים)","ref":2500},{"n":"ביטול נקודת מים","ref":null}]},{"g":"נגרות ואחר","items":[{"n":"דלת","ref":3000},{"n":"העברת ספסל והתאמות לעמוד קיים","ref":3000},{"n":"עמוד לטלוויזיה","ref":null},{"n":"שלב – רהיטים","ref":null},{"n":"ארונות כלים","ref":null}]},{"g":"רכש עיצוב (באחריות מעצבת)","items":[{"n":"אפיציו","ref":2000},{"n":"אביזרים שולחניים","ref":2000}]},{"g":"בינוי ועיצוב","items":[{"n":"פספוסי עיצוב","ref":null}]}];
+var GENCAT=[{"n":"תוכנית בטיחות","ref":4000},{"n":"התאמות לתוכנית בטיחות","ref":5000},{"n":"הפעלות בקרות ומערכות","ref":7500},{"n":"צבע – קומה מלאה (ערבה תיקונים בלבד)","ref":37000},{"n":"ניקיון קבלני לקומה","ref":20000},{"n":"החלפת צילינדר","ref":500}];
+var HOBREF=500;
+var DEFNOTE="התמחור בוצע על פי תוכנית ״עננים״ מול תוכנית מצב קיים, ללא סט תוכניות מלא. תמחור מדויק יינתן בהתאם לסט תוכניות מלא.\nלא כולל: כיבוי בגז · שינויים/ביטולים של ספרינקלרים · התאמות מיזוג · ארונות תקשורת · רכש עיצוב וריהוט.";
+var GENLBL="פירוקים והובלות כלליות";
+var D=null;
+function freshZoneLines(){var a=[];CATALOG.forEach(function(g){g.items.forEach(function(it){a.push({n:it.n,g:g.g,ref:rref(it.n,it.ref),gen:!!it.gen,p:null,q:0});});});return a;}
+function freshGen(){return GENCAT.map(function(it){return {n:it.n,g:"כללי",ref:rref(it.n,it.ref),p:null,q:0};});}
+function blank(){return {proj:"",cli:"",addr:"",date:new Date().toISOString().slice(0,10),pm:"",note:DEFNOTE,bz:10,zones:[],gen:freshGen(),atts:[],hob:{p:null,q:1}};}
+var UNDO={};
+function migrate(lines,fresh){
+  var out=[],used={};
+  fresh.forEach(function(f){
+    var hit=null;
+    for(var i=0;i<lines.length;i++){ if(!used[i]&&lines[i].n===f.n){hit=lines[i];used[i]=1;break;} }
+    if(hit){ hit.g=f.g; hit.ref=f.ref; if(f.gen)hit.gen=true; else delete hit.gen; out.push(hit); }
+    else out.push(f);
+  });
+  lines.forEach(function(l,i){ if(!used[i])out.push(l); });
+  return out;
+}
+function norm(l){delete l.d;delete l.x;var q=num(l.q);if(q===null||q<0)q=0;if(num(l.p)===null)q=0;l.q=Math.round(q);return l;}
+function load(){var s=null;try{s=localStorage.getItem("gilquote_v6");}catch(e){}try{D=s?JSON.parse(s):blank();}catch(e){D=blank();}if(!D.zones)D.zones=[];if(!D.gen)D.gen=freshGen();if(!D.atts)D.atts=[];if(!D.hob)D.hob={p:null,q:1};
+  D.zones.forEach(function(z){z.lines=migrate(z.lines||[],freshZoneLines()).map(norm);});
+  D.gen=migrate(D.gen||[],freshGen()).map(norm);
+  var oz=-1;for(var zi=0;zi<D.zones.length;zi++){if(D.zones[zi].open){oz=zi;break;}}
+  CURZONE=(oz>=0?oz:0);
+}
+function save(){D.proj=v("mProj");D.cli=v("mCli");D.addr=v("mAddr");D.date=v("mDate");D.pm=v("mPm");D.note=v("mNote");D.bz=parseFloat(document.getElementById("fBz").value)||0;try{localStorage.setItem("gilquote_v6",JSON.stringify(D));}catch(e){}}
+function v(id){return document.getElementById(id).value;}
+function fdate(d){if(!d)return "";var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(d);return m?(m[3]+"."+m[2]+"."+m[1]):d;}
+function nf(n){return (Math.round(n)).toLocaleString("en-US");}
+function num(x){return (x===null||x===undefined||x==="")?null:(isNaN(parseFloat(x))?null:parseFloat(x));}
+function dst(l){return l.d===true?2:(l.d===2?2:(l.d===1?1:0));}
+function qv(l){var q=num(l.q);return (q===null||q<0)?0:Math.round(q);}
+function ltot(l){var p=num(l.p);return p===null?null:p*qv(l);}
+function lt(l){if(l.x||l.gen)return null;return ltot(l);}
+function vp(l){return l.x?null:ltot(l);}
+function vpz(l){return (l.x||l.gen)?null:ltot(l);}
+function zsum(z){var s=0;z.lines.forEach(function(l){var t=lt(l);if(t!==null)s+=t;});return s;}
+function genAgg(){var s=0,any=false,per=[];D.zones.forEach(function(z){var zs=0,hit=false;z.lines.forEach(function(l){if(l.gen&&!l.x){var t=ltot(l);if(t!==null){zs+=t;hit=true;}}});if(hit){s+=zs;any=true;per.push({t:z.t,v:zs});}});return {sum:s,any:any,per:per};}
+function hobv(){var g=genAgg();return g.any?g.sum:null;}
+function gensum(){return zsum({lines:D.gen})+genAgg().sum;}
+function baseTotal(){var b=genAgg().sum;D.zones.forEach(function(z){b+=zsum(z);});b+=zsum({lines:D.gen});return b;}
+function esc(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;");}
+
+function lineHTML(l,zi,li){
+  var cls="line";
+  var zero=(num(l.p)===0);
+  if(zero)cls+=" qm";
+  var rf=(l.ref!==null&&l.ref!==undefined)
+   ?'<div class="rfw"><button class="rfb'+(num(l.p)===l.ref?" on":"")+'" data-zi="'+zi+'" data-li="'+li+'" onclick="useRef('+zi+','+li+')">✓ מחירון '+nf(l.ref)+' ₪'+(qv(l)>0?' ×'+qv(l):'')+'</button></div>'
+   :'<div class="rfw"><button class="rfb rfempty" data-zi="'+zi+'" data-li="'+li+'" onclick="editRef('+zi+','+li+')">＋ הוסף מחירון</button></div>';
+  var tt=ltot(l);
+  if(l.gen)cls+=" genl";
+  var ed=!!EDIT[zi+"|"+li];
+  if(ed)cls+=" editing";
+  var nmInner=ed
+   ?'<div class="nmrow"><input class="nmedit" data-zi="'+zi+'" data-li="'+li+'" value="'+esc(l.n)+'" placeholder="תיאור הסעיף…" onchange="setName('+zi+','+li+',this.value)" oninput="setName('+zi+','+li+',this.value)"><button class="nmdone" onclick="doneLine('+zi+','+li+')" title="סיום">✓</button><button class="nmdel" onclick="delFree('+zi+','+li+')" title="מחק סעיף">－</button></div>'
+   :'<span class="nmtxt" onclick="editLine('+zi+','+li+')">'+esc(l.n)+'</span>';
+  var mlTxt=(l.ml&&(""+l.ml).trim());
+  var mlHTML='<div class="mlw"><button class="mlbtn" onclick="setMl('+zi+','+li+')">'+(mlTxt?'✎ מלל':'＋ מלל')+'</button></div>'+(mlTxt?'<div class="mlnote">＊('+esc((""+l.ml).trim())+')</div>':'');
+  return '<div class="'+cls+'">'+
+  '<div class="nm">'+nmInner+rf+mlHTML+(l.gen?'<div class="tag">מתרכז בכללי</div>':'')+(zero?'<div class="qtag">❓ האם יש לבצע?</div>':'')+'</div>'+
+  '<div class="qw">'+
+   '<input class="qt" type="number" inputmode="numeric" min="0" placeholder="כמות" value="'+(qv(l)>0?qv(l):"")+'" onchange="setQ('+zi+','+li+',this.value)">'+
+   '<input class="pr" type="number" inputmode="numeric" placeholder="מחיר ₪" value="'+(l.p==null?"":l.p)+'" onchange="setP('+zi+','+li+',this.value)">'+
+   '<div class="tt">'+(tt===null?'—':nf(tt)+' ₪')+'</div>'+
+  '</div></div>';
+}
+var GREG={};
+function linesHTML(lines,zi){
+  var order=[],byg={};
+  lines.forEach(function(l,li){var g=l.g||"סעיפים נוספים";if(!byg[g]){byg[g]=[];order.push(g);}byg[g].push({l:l,i:li});});
+  GREG[zi]=order;
+  var h="";
+  order.forEach(function(g,gi){
+    var gcl=!!GCOL[zi+"|"+g];
+    h+='<div class="grp gcl" onclick="tglGrp('+zi+','+gi+')">'+esc(g)+'<span class="gcv">'+(gcl?"▸":"▾")+'</span></div>';
+    if(!gcl) byg[g].forEach(function(o){ h+=lineHTML(o.l,zi,o.i); });
+    var rem=[];
+    if(rem.length){
+      var key=zi+"|"+gi, open=!!UNDO[key];
+      h+='<div class="undo"><button onclick="tglUndo('+zi+','+gi+')">↩ סעיפים שהוסרו ('+rem.length+')'+(open?" ▾":" ▸")+'</button>';
+      if(open){ rem.forEach(function(o){ h+='<div class="urow"><span>'+esc(o.l.n)+'</span><button onclick="restore('+zi+','+o.i+')">החזר</button></div>'; }); }
+      h+='</div>';
+    }
+  });
+  return h;
+}
+function renderAtts(){
+  var b=document.getElementById("attBox");if(!b)return;
+  if(!D.atts.length){b.innerHTML='<div class="empt">אין קבצים. הוסף קובץ או תמונה</div>';return;}
+  var h='<div class="atts">';
+  D.atts.forEach(function(a,i){
+    h+='<div class="att"><button class="rm" onclick="rmAtt('+i+')">✕</button>'+
+       (a.img?('<img src="'+a.u+'" onclick="openAtt('+i+')">'):('<div class="fi" onclick="openAtt('+i+')">📄</div>'))+
+       '<div class="cap">'+esc(a.n)+'</div></div>';
+  });
+  b.innerHTML=h+'</div>';
+}
+function rmAtt(i){D.atts.splice(i,1);save();renderAtts();}
+function openAtt(i){var a=D.atts[i];if(!a.u){alert("הקובץ גדול מדי לשמירה — שמור אותו בנפרד");return;}var w=window.open();if(w){w.document.write('<title>'+a.n+'</title><body style="margin:0;background:#111;display:flex;align-items:center;justify-content:center;height:100vh">'+(a.img?'<img src="'+a.u+'" style="max-width:100%;max-height:100%">':'<a href="'+a.u+'" download="'+a.n+'" style="color:#fff;font-family:sans-serif;font-size:20px">הורד '+a.n+'</a>')+'</body>');}}
+function shrink(file,cb){
+  var fr=new FileReader();
+  fr.onload=function(e){
+    var im=new Image();
+    im.onload=function(){
+      var mx=1200,w=im.width,h=im.height;
+      if(w>mx||h>mx){var r=Math.min(mx/w,mx/h);w=Math.round(w*r);h=Math.round(h*r);}
+      var c=document.createElement("canvas");c.width=w;c.height=h;
+      c.getContext("2d").drawImage(im,0,0,w,h);
+      cb(c.toDataURL("image/jpeg",0.68));
+    };
+    im.onerror=function(){cb(e.target.result);};
+    im.src=e.target.result;
+  };
+  fr.readAsDataURL(file);
+}
+function addAtt(o){D.atts.push(o);try{save();}catch(e){}renderAtts();}
+function pick(inp){
+  var fs=Array.prototype.slice.call(inp.files||[]);
+  fs.forEach(function(f){
+    if((f.type||"").indexOf("image")===0){ shrink(f,function(u){ addAtt({n:f.name||"תמונה.jpg",img:true,u:u}); }); }
+    else if(f.size<=1500000){ var fr=new FileReader(); fr.onload=function(e){ addAtt({n:f.name,img:false,u:e.target.result}); }; fr.readAsDataURL(f); }
+    else { addAtt({n:f.name+" (גדול מדי לשמירה)",img:false,u:""}); }
+  });
+  inp.value="";
+}
+function refsGet(){try{return JSON.parse(localStorage.getItem("gilquote_refs")||"{}");}catch(e){return {};}}
+function refsSet(o){try{localStorage.setItem("gilquote_refs",JSON.stringify(o));}catch(e){}}
+var REFS=refsGet();
+function rref(n,d){return (REFS&&REFS[n]!==undefined&&REFS[n]!==null)?REFS[n]:(d==null?null:d);}
+var LP=null,LPFIRED=false;
+function editRef(zi,li){
+  var l=arr(zi)[li];if(!l)return;
+  var r=prompt("מחיר חדש לסעיף:\n"+l.n,(l.ref==null?"":l.ref));
+  if(r===null)return;
+  r=(r+"").trim();var v=(r===""?null:(parseFloat(r.replace(/[^0-9.]/g,""))||0));
+  if(v===null)return;
+  var perm=confirm("לעדכן את המחירון באופן קבוע?\nאישור = שינוי קבוע לכל ההצעות · ביטול = חד פעמי בהצעה זו בלבד");
+  if(perm){ REFS[l.n]=v; refsSet(REFS);
+    D.zones.forEach(function(z){z.lines.forEach(function(x){if(x.n===l.n)x.ref=v;});});
+    D.gen.forEach(function(x){if(x.n===l.n)x.ref=v;});
+  } else { l.ref=v; }
+  l.p=v;save();render();
+}
+function lpStart(e){var b=e.target&&e.target.closest?e.target.closest(".rfb"):null;if(!b)return;LPFIRED=false;var zi=parseInt(b.getAttribute("data-zi"),10),li=parseInt(b.getAttribute("data-li"),10);if(isNaN(zi)||isNaN(li))return;LP=setTimeout(function(){LPFIRED=true;LP=null;editRef(zi,li);},600);}
+function lpEnd(){if(LP){clearTimeout(LP);LP=null;}}
+document.addEventListener("touchstart",lpStart,{passive:true});
+document.addEventListener("mousedown",lpStart);
+document.addEventListener("touchend",lpEnd);
+document.addEventListener("touchmove",lpEnd,{passive:true});
+document.addEventListener("mouseup",lpEnd);
+function bump(zi,li){var a=arr(zi);if(li>=0&&li<a.length){var l=a.splice(li,1)[0];a.unshift(l);}}
+function useRef(zi,li){if(LPFIRED){LPFIRED=false;return;}if(zi>=0)CURZONE=zi;var l=arr(zi)[li];l.p=l.ref;l.q=qv(l)+1;bump(zi,li);save();render();}
+function newPrice(zi,li){var l=arr(zi)[li];var was=(num(l.p)!==null);var r=prompt("מחיר לסעיף: "+l.n,(l.p==null?"":l.p));if(r===null)return;r=(r+"").trim();l.p=(r===""?null:(parseFloat(r.replace(/[^0-9.\-]/g,""))||0));if(!was&&l.p!==null)bump(zi,li);save();render();}
+function setMl(zi,li){var l=arr(zi)[li];if(!l)return;var r=prompt("מלל חופשי לסעיף (יוצג בכוכבית ובסוגריים):",(l.ml||""));if(r===null)return;l.ml=(""+r).trim();save();render();}
+function mlpv(l){return (l.ml&&(""+l.ml).trim())?'<div style="font-size:11px;color:#5b6676;margin-top:2px;font-weight:400">＊('+esc((""+l.ml).trim())+')</div>':'';}
+function tglUndo(zi,gi){var k=zi+"|"+gi;UNDO[k]=!UNDO[k];render();}
+function restore(zi,li){arr(zi)[li].x=false;save();render();}
+function prog(lines){var f=0,d=0;lines.forEach(function(l){if(l.x)return;var p=num(l.p);if(p!==null||dst(l)){f++;if(dst(l)===2)d++;}});return {t:f,d:d};}
+var LASTRES=[];
+var CURZONE=0;
+function addFromCat(i){var o=LASTRES[i];if(!o)return;
+  var it={n:o.n,g:o.g,ref:(o.ref==null?null:o.ref),p:null,q:0,added:true};
+  var toZone=(D.zones.length&&D.zones[CURZONE]);
+  if(toZone){D.zones[CURZONE].open=true;D.zones[CURZONE].lines.unshift(it);}
+  else{D.gen.unshift(it);}
+  var cq=document.getElementById("catQ");if(cq)cq.value="";
+  save();render();
+  var box=toZone?document.querySelectorAll("#zones .card")[CURZONE]:document.getElementById("genc");
+  if(box)box.scrollIntoView({behavior:"smooth",block:"start"});}
+function filterCat(){
+  var inp=document.getElementById("catQ");if(!inp)return;
+  var q=(inp.value||"").trim().toLowerCase();
+  document.body.classList.toggle("searching",!!q);
+  var res=document.getElementById("catRes");
+  if(res){
+    if(!q){res.style.display="none";res.innerHTML="";LASTRES=[];}
+    else{
+      var out=[];
+      CATALOG.forEach(function(g){g.items.forEach(function(it){if(it.n.toLowerCase().indexOf(q)>=0)out.push({n:it.n,g:g.g,ref:rref(it.n,it.ref)});});});
+      GENCAT.forEach(function(it){if(it.n.toLowerCase().indexOf(q)>=0)out.push({n:it.n,g:"כללי",ref:rref(it.n,it.ref)});});
+      LASTRES=out;
+      if(!out.length)res.innerHTML='<div class="crEmpty">אין תוצאות במחירון</div>';
+      else res.innerHTML='<div class="crHd">תוצאות מהמחירון · '+out.length+'</div>'+out.map(function(o,ix){return '<div class="crRow"><div class="crNm">'+esc(o.n)+'<span class="crCat">'+esc(o.g)+'</span></div><div class="crPr">'+(o.ref!=null?nf(o.ref)+' ₪':'')+'</div><button class="crAdd" onclick="addFromCat('+ix+')" title="הוסף לאיזור הנוכחי">＋</button></div>';}).join('');
+      res.style.display="block";
+    }
+  }
+  var conts=[];
+  var gc=document.querySelector("#genc .card");if(gc)conts.push(gc);
+  [].forEach.call(document.querySelectorAll("#zones .zbody"),function(z){conts.push(z);});
+  conts.forEach(function(c){
+    var lastGrp=null,grpVis=false;
+    function close(){if(lastGrp)lastGrp.style.display=grpVis?"":"none";}
+    [].forEach.call(c.children,function(e){
+      if(e.classList.contains("grp")){close();lastGrp=e;grpVis=false;e.style.display="";}
+      else if(e.classList.contains("line")){
+        var nm=e.querySelector(".nm");var t=nm?nm.textContent.toLowerCase():"";
+        var ok=!q||t.indexOf(q)>=0;e.style.display=ok?"":"none";if(ok)grpVis=true;
+      } else { e.style.display=q?"none":""; }
+    });
+    close();
+  });
+  document.querySelectorAll("#zones .card").forEach(function(card){
+    if(!q){card.style.display="";return;}
+    var vis=card.querySelectorAll(".zbody .line");var any=false;
+    [].forEach.call(vis,function(l){if(l.style.display!=="none")any=true;});
+    card.style.display=any?"":"none";
+  });
+}
+function actv(l){return (num(l.p)!==null)||qv(l)>0||!!l.free||!!l.added||!!l.gen;}
+function floatActive(){
+  D.gen.sort(function(a,b){return (actv(b)?1:0)-(actv(a)?1:0);});
+  D.zones.forEach(function(z){z.lines.sort(function(a,b){return (actv(b)?1:0)-(actv(a)?1:0);});});
+}
+function render(){
+  floatActive();
+  var h="";
+  D.zones.forEach(function(z,zi){
+    var pg=prog(z.lines);
+    h+='<div class="card"><div class="zh" onclick="tog(event,'+zi+')">'+
+       '<span class="cv">'+(z.open?"▾":"▸")+'</span><span class="cvsep"></span>'+
+       '<input value="'+esc(z.t)+'" onclick="event.stopPropagation()" onchange="setZT('+zi+',this.value)">'+
+       '<div class="zsum">'+nf(zsum(z))+' ₪</div>'+
+       '</div>'+
+       '<div class="zbody'+(z.open?" open":"")+'">'+linesHTML(z.lines,zi)+
+       '<div class="addrow"><button onclick="addFree('+zi+')">+ סעיף חופשי לאיזור</button></div>'+
+       '<div class="zfoot"><span>סה״כ '+esc(z.t)+'</span><span>'+nf(zsum(z))+' ₪</span></div></div></div>';
+  });
+  document.getElementById("zones").innerHTML=h||'';
+  var ga=genAgg();
+  var aggHTML='';
+  document.getElementById("genc").innerHTML='<div class="card">'+aggHTML+linesHTML(D.gen,-1)+
+    '<div class="addrow"><button onclick="addFree(-1)">+ סעיף חופשי כללי</button></div></div>';
+  var hb=document.getElementById("hobc");
+  if(hb){var ag=genAgg(),hh="";
+    if(!ag.any)hh='<div class="empt">ממלאים בכל איזור בסעיף הראשון · הסכום מתרכז כאן</div>';
+    else{ ag.per.forEach(function(o){ hh+='<div class="hrow"><span>'+esc(o.t)+'</span><span>'+nf(o.v)+' ₪</span></div>'; });
+      hh+='<div class="zfoot"><span>סה״כ פירוקים והובלות</span><span>'+nf(ag.sum)+' ₪</span></div>'; }
+    hb.innerHTML='<div class="card">'+hh+'</div>';}
+  var gt=document.getElementById("gtot");
+  if(gt)gt.innerHTML='<div class="card"><div class="zfoot"><span>סה״כ סעיפים כלליים (קומה)</span><span>'+nf(gensum())+' ₪</span></div></div>';
+  try{filterCat();}catch(e){}
+  var base=baseTotal(),fill=0,dn=0;
+  function scan(l){if(l.x)return;var p=num(l.p);if(p!==null||dst(l)){fill++;if(dst(l)===2)dn++;}}
+  D.zones.forEach(function(z){z.lines.forEach(scan);});
+  D.gen.forEach(scan);
+  var bz=base*(D.bz||0)/100,tot=base+bz;
+  document.getElementById("fBase").textContent=nf(base)+" ₪";
+  document.getElementById("fBzv").textContent=nf(bz)+" ₪";
+  document.getElementById("fTot").textContent=nf(tot)+" ₪";
+  document.getElementById("fVat").textContent=nf(tot*1.18)+" ₪";
+
+}
+function tog(e,i){D.zones[i].open=!D.zones[i].open;if(D.zones[i].open)CURZONE=i;save();render();}
+function setZT(i,val){D.zones[i].t=val;save();render();}
+function arr(zi){return zi<0?D.gen:D.zones[zi].lines;}
+function setP(zi,li,val){if(zi>=0)CURZONE=zi;var l=arr(zi)[li];var was=(num(l.p)!==null);l.p=(val===""?null:val);if(l.p===null)l.q=0;else if(qv(l)<1)l.q=1;if(!was&&l.p!==null)bump(zi,li);save();render();}
+function setQ(zi,li,val){var v=parseFloat(val);arr(zi)[li].q=(isNaN(v)||v<0)?0:Math.round(v);save();render();}
+function setHobP(val){if(!D.hob)D.hob={p:null,q:1};D.hob.p=(val===""?null:val);save();render();}
+function setHobQ(val){if(!D.hob)D.hob={p:null,q:1};var v=parseFloat(val);D.hob.q=(isNaN(v)||v<1)?1:Math.round(v);save();render();}
+function useHobRef(){if(!D.hob)D.hob={p:null,q:1};D.hob.p=HOBREF;save();render();}
+function tglDone(zi,li){var l=arr(zi)[li];l.d=(dst(l)+1)%3;save();render();}
+function delLine(zi,li){var l=arr(zi)[li];l.x=true;l.d=0;save();render();}
+function delZone(i){if(!confirm("למחוק את "+D.zones[i].t+"?"))return;D.zones.splice(i,1);if(CURZONE>=D.zones.length)CURZONE=Math.max(0,D.zones.length-1);save();render();}
+function addZone(){D.zones.forEach(function(z){z.open=false;});D.zones.push({t:"איזור "+(D.zones.length+1),open:true,lines:freshZoneLines()});CURZONE=D.zones.length-1;save();render();
+  var c=document.getElementById("zones").lastElementChild;if(c)c.scrollIntoView({block:"start"});}
+function curZoneIdx(){var i=D.zones.findIndex(function(z){return z.open;});if(i<0)i=CURZONE;if(i<0||i>=D.zones.length)i=D.zones.length-1;return i;}
+function cancelZone(){var i=curZoneIdx();if(i<0){alert("אין איזור פתוח");return;}
+  if(!confirm("לבטל את "+D.zones[i].t+"? כל הסעיפים באיזור יימחקו."))return;
+  D.zones.splice(i,1);CURZONE=Math.max(0,Math.min(CURZONE,D.zones.length-1));save();render();}
+function resetZone(){var i=curZoneIdx();if(i<0){alert("אין איזור פתוח");return;}
+  if(!confirm("לאפס את "+D.zones[i].t+"? המחירים והכמויות יתאפסו."))return;
+  D.zones[i].lines=freshZoneLines();D.zones[i].open=true;save();render();}
+var GCOL={};
+function tglGrp(zi,gi){var g=(GREG[zi]||[])[gi];if(!g)return;var k=zi+"|"+g;if(GCOL[k])delete GCOL[k];else GCOL[k]=true;render();}
+function collapseAll(){
+  var anyOpen=D.zones.some(function(z){return z.open;});
+  var anyGrpOpen=false;
+  D.zones.forEach(function(z,zi){z.lines.forEach(function(l){var g=l.g||"סעיפים נוספים";if(!GCOL[zi+"|"+g])anyGrpOpen=true;});});
+  D.gen.forEach(function(l){var g=l.g||"סעיפים נוספים";if(!GCOL["-1|"+g])anyGrpOpen=true;});
+  if(anyOpen||anyGrpOpen){
+    D.zones.forEach(function(z,zi){z.open=false;z.lines.forEach(function(l){GCOL[zi+"|"+(l.g||"סעיפים נוספים")]=true;});});
+    D.gen.forEach(function(l){GCOL["-1|"+(l.g||"סעיפים נוספים")]=true;});
+  } else { GCOL={}; D.zones.forEach(function(z){z.open=true;}); }
+  save();render();}
+var EDIT={};
+function editLine(zi,li){EDIT[zi+"|"+li]=true;render();
+  setTimeout(function(){var el=document.querySelector('.nmedit[data-zi="'+zi+'"][data-li="'+li+'"]');if(el){el.focus();el.setSelectionRange&&el.setSelectionRange(el.value.length,el.value.length);}},30);}
+function doneLine(zi,li){delete EDIT[zi+"|"+li];render();}
+function addFree(zi){arr(zi).push({n:"",g:"סעיפים נוספים",ref:null,p:null,d:false,x:false,free:true});EDIT[zi+"|"+(arr(zi).length-1)]=true;save();render();
+  setTimeout(function(){var el=document.querySelector('.nmedit[data-zi="'+zi+'"][data-li="'+(arr(zi).length-1)+'"]');if(el)el.focus();},30);}
+function setName(zi,li,val){var l=arr(zi)[li];if(l)l.n=val;save();}
+function delFree(zi,li){arr(zi).splice(li,1);delete EDIT[zi+"|"+li];save();render();}
+function demoPrice(l){
+  if(l.ref!==null&&l.ref!==undefined&&l.ref>0)return Math.round(l.ref/100)*100;
+  if(l.ref===0)return 0;
+  var t=l.n||"";
+  if(t.indexOf("תאורה")>=0||t.indexOf("חשמל")>=0||t.indexOf("תרמוסטט")>=0||t.indexOf("מתג")>=0)return 1500;
+  if(t.indexOf("מזגן")>=0)return 4000;
+  if(t.indexOf("פלח מתכת")>=0)return 2000;
+  if(t.indexOf("אפיציו")>=0||t.indexOf("אביזרים")>=0)return 2500;
+  return 2000;
+}
+function fillDemo(){
+  if(!D.zones.length){for(var i=0;i<3;i++)D.zones.push({t:"איזור "+(i+1),open:(i===0),lines:freshZoneLines()});}
+  D.zones.forEach(function(z){z.lines.forEach(function(l){if(!l.x&&(l.p===null||l.p===""))l.p=demoPrice(l);});});
+  D.gen.forEach(function(l){if(!l.x&&(l.p===null||l.p===""))l.p=demoPrice(l);});
+  if(!D.proj)D.proj="לדוגמה";
+  if(!D.date)D.date=new Date().toISOString().slice(0,10);
+  save();fill();render();window.scrollTo(0,0);
+}
+function arcGet(){try{return JSON.parse(localStorage.getItem("gilquote_arc")||"[]");}catch(e){return [];}}
+function arcSet(a){try{localStorage.setItem("gilquote_arc",JSON.stringify(a));}catch(e){alert("אין מספיק מקום לשמירה במכשיר");}}
+function arcSave(){
+  var nm=(D.proj||"").trim();
+  if(!nm){nm=prompt("שם הפרויקט לשמירת ההצעה:","");if(nm===null)return false;nm=(nm||"").trim();}
+  if(!nm)nm="הצעה";
+  var a=arcGet();a.unshift({nm:nm||"הצעה",ts:new Date().toISOString(),tot:baseTotal(),d:JSON.parse(JSON.stringify(D))});
+  arcSet(a);return true;
+}
+function openArchive(){
+  var a=arcGet(),h="";
+  if(!a.length)h='<div class="empt">אין הצעות שמורות</div>';
+  else a.forEach(function(q,i){
+    h+='<div class="qrow"><div class="qtop"><div class="qn">'+esc(q.nm)+'<div class="qd">'+fdate((q.ts||"").slice(0,10))+' · '+nf(q.tot||0)+' ₪</div></div></div>'+
+       '<div class="qact"><button class="pv" onclick="arcPDF('+i+')">📄 PDF</button><button class="ld" onclick="arcLoad('+i+')">טען</button><button class="wpb" onclick="arcWorkplan('+i+')">🗂 תוכנית עבודה</button><button class="dl" onclick="arcDel('+i+')">מחק</button></div></div>';
+  });
+  document.getElementById("arcBox").innerHTML=h;
+  document.getElementById("mod4").classList.add("on");
+}
+function arcLoad(i){var a=arcGet();if(!a[i])return;if(!confirm("לטעון את «"+a[i].nm+"»? ההצעה הנוכחית תוחלף."))return;D=a[i].d;if(!D.atts)D.atts=[];save();fill();render();renderAtts();document.getElementById("mod4").classList.remove("on");window.scrollTo(0,0);}
+function finishQuote(){
+  if(baseTotal()<=0){alert("לא הוזנו מחירים בהצעה");return;}
+  if(confirm("לשמור את ההצעה בהצעות השמורות?")){ if(!arcSave())return; }
+  makePDF(0);
+}
+function arcPDF(i){var a=arcGet();if(!a[i])return;var keep=D;D=a[i].d;if(!D.hob)D.hob={p:null,q:1};if(!D.gen)D.gen=[];if(!D.zones)D.zones=[];buildPV();var html=document.getElementById("pv").innerHTML;D=keep;render();document.getElementById("pv").innerHTML=html;document.getElementById("pvBox").innerHTML=html;document.getElementById("mod4").classList.remove("on");document.getElementById("mod5").classList.add("on");}
+function arcDel(i){var a=arcGet();if(!a[i])return;if(!confirm("למחוק את «"+a[i].nm+"»?"))return;a.splice(i,1);arcSet(a);openArchive();}
+function resetAll(){
+  var has=baseTotal()>0||D.proj||D.zones.length;
+  if(has){
+    var r=confirm("לשמור את ההצעה הנוכחית לפני פתיחת חדשה?\nאישור = שמירה · ביטול = בלי לשמור");
+    if(r){ if(!arcSave())return; }
+    else { if(!confirm("לפתוח הצעה חדשה בלי לשמור? הנוכחית תימחק."))return; }
+  }
+  D=blank();fill();save();render();renderAtts();window.scrollTo(0,0);
+}
+var WPARC=null,WPSRC=null;
+function wpData(){return WPSRC||D;}
+function wpActive(l){return !l.x && num(l.p)!==null && qv(l)>0;}
+function openWorkplan(){WPARC=null;WPSRC=null;renderWorkplan();document.getElementById("mod6").classList.add("on");}
+function arcWorkplan(i){var a=arcGet();if(!a[i])return;var s=a[i].d;if(!s.zones)s.zones=[];if(!s.gen)s.gen=[];WPARC=i;WPSRC=s;renderWorkplan();document.getElementById("mod4").classList.remove("on");document.getElementById("mod6").classList.add("on");}
+function renderWorkplan(){
+  var S=wpData(),tot=0,dn=0,h="";
+  function grp(title,lines,zi){
+    var rows="";
+    lines.forEach(function(l,li){ if(!wpActive(l))return; tot++; var done=dst(l)===2; if(done)dn++;
+      rows+='<div class="wprow'+(done?" done":"")+'" onclick="wpToggle('+zi+','+li+')"><span class="wpck">'+(done?"✔":"")+'</span><span class="wpn">'+esc(l.n)+(qv(l)>1?" ×"+qv(l):"")+'</span><span class="wpst">'+(done?"בוצע":"לא בוצע")+'</span></div>';
+    });
+    if(rows)h+='<div class="wpg">'+esc(title)+'</div>'+rows;
+  }
+  S.zones.forEach(function(z,zi){grp(z.t,z.lines,zi);});
+  grp("כללי",S.gen,-1);
+  var pct=tot?Math.round(dn/tot*100):0;
+  var head='<div class="wphd"><div class="wpt">'+esc(S.proj||"תוכנית עבודה")+(WPARC!=null?" · שמורה":"")+'</div><div class="wpbar"><div class="wpfill" style="width:'+pct+'%"></div></div><div class="wpc">בוצעו '+dn+' מתוך '+tot+' סעיפים ('+pct+'%)</div></div>';
+  document.getElementById("wpBox").innerHTML=head+(tot?h:'<div class="empt">אין סעיפים לביצוע — הזן מחירים וכמויות בהצעה</div>');
+}
+function wpToggle(zi,li){var S=wpData();var l=(zi<0?S.gen:S.zones[zi].lines)[li];l.d=(dst(l)===2?0:2);if(WPARC!=null){var a=arcGet();if(a[WPARC]){a[WPARC].d=S;arcSet(a);}}else{save();render();}renderWorkplan();}
+function wpPrint(){
+  var S=wpData(),tot=0,dn=0;
+  var t='';
+  var det=[["פרויקט",S.proj],["לקוח",S.cli],["כתובת",S.addr],["מנהל פרויקט",S.pm],["תאריך שליחת ההצעה",fdate(S.date)]];
+  t+='<table class="det">';det.forEach(function(d){t+='<tr><td style="width:130px;color:#5b6676">'+esc(d[0])+'</td><td style="font-weight:700">'+esc(d[1]||"—")+'</td></tr>';});t+='</table>';
+  t+='<table style="margin-top:12px"><tr><th style="width:70px;text-align:center">בוצע</th><th>סעיף</th><th style="text-align:center;width:52px">כמות</th></tr>';
+  function grp(title,lines){
+    var rows="";
+    lines.forEach(function(l){ if(!wpActive(l))return; tot++; var done=dst(l)===2; if(done)dn++;
+      rows+='<tr><td style="text-align:center;font-size:15px">'+(done?"✔":"☐")+'</td><td>&nbsp;&nbsp;'+esc(l.n)+'</td><td style="text-align:center">'+qv(l)+'</td></tr>';
+    });
+    if(rows)t+='<tr class="zt"><td></td><td>'+esc(title)+'</td><td></td></tr>'+rows;
+  }
+  S.zones.forEach(function(z){grp(z.t,z.lines);});
+  grp("כללי",S.gen);
+  t+='</table>';
+  var pct=tot?Math.round(dn/tot*100):0;
+  t+='<div class="tots"><div class="f"><span>בוצעו</span><span>'+dn+' / '+tot+' ('+pct+'%)</span></div></div>';
+  document.getElementById("pv").innerHTML=t;
+  document.title=(S.proj||"תוכנית עבודה")+" - תוכנית עבודה";
+  document.getElementById("mod6").classList.remove("on");
+  setTimeout(function(){window.print();},150);
+}
+function fill(){var dd=document.getElementById("mDate");dd.type=(D.date?"date":"text");document.getElementById("mProj").value=D.proj||"";document.getElementById("mCli").value=D.cli||"";document.getElementById("mAddr").value=D.addr||"";document.getElementById("mDate").value=D.date||"";document.getElementById("mPm").value=D.pm||"";document.getElementById("mNote").value=D.note||"";document.getElementById("fBz").value=D.bz==null?10:D.bz;}
+
+function finish(){
+  var base=baseTotal(),bz=base*(D.bz||0)/100,tot=base+bz,ga=genAgg();
+  var h='<div class="stbl">';
+  D.zones.forEach(function(z){ if(zsum(z)===0&&!z.lines.some(function(l){return vp(l)!==null;}))return;
+    h+='<div class="srow"><span>'+esc(z.t)+'</span><b>'+nf(zsum(z))+' ₪</b></div>';});
+  h+='<div class="srow"><span>סעיפים כלליים</span><b>'+nf(zsum({lines:D.gen}))+' ₪</b></div>';
+  h+='</div>';
+  h+='<div class="stbl" style="margin-top:10px">';
+  h+='<div class="srow"><span>סה״כ סעיפים</span><b>'+nf(base)+' ₪</b></div>';
+  h+='<div class="srow"><span>בצ״מ '+(D.bz||0)+'%</span><b>'+nf(bz)+' ₪</b></div>';
+  h+='<div class="srow"><span>מע״מ 18%</span><b>'+nf(tot*0.18)+' ₪</b></div>';
+  h+='</div>';
+  h+='<div class="srow tot"><span>סה״כ לפני מע״מ</span><b>'+nf(tot)+' ₪</b></div>';
+  h+='<div class="srow tot" style="background:#2f4a75"><span>סה״כ כולל מע״מ</span><b>'+nf(tot*1.18)+' ₪</b></div>';
+  var fl=0,dn=0;function sc(l){if(l.x)return;var p=num(l.p);if(p!==null||dst(l)){fl++;if(dst(l)===2)dn++;}}
+  D.zones.forEach(function(z){z.lines.forEach(sc);});D.gen.forEach(sc);
+  if(fl)h+='<div style="margin-top:12px;font-size:13px;color:#1e9e57;font-weight:800">ביצוע בפועל: '+dn+' מתוך '+fl+' סעיפים ('+Math.round(dn/fl*100)+'%)</div>';
+  document.getElementById("sumBox").innerHTML=h;
+  document.getElementById("mod3").classList.add("on");
+}
+
+function buildPV(){
+  var base=baseTotal(),bz=base*(D.bz||0)/100,tot=base+bz,ga=genAgg();
+  var t='';
+  var det=[["פרויקט",D.proj],["לקוח",D.cli],["כתובת",D.addr],["מנהל פרויקט",D.pm],["תאריך שליחת ההצעה",fdate(D.date)]];
+  t+='<table class="det">';
+  det.forEach(function(d){ t+='<tr><td style="width:130px;color:#5b6676">'+esc(d[0])+'</td><td style="font-weight:700">'+esc(d[1]||"—")+'</td></tr>'; });
+  t+='</table>';
+  t+='<table style="margin-top:12px"><tr><th>סעיף</th><th style="text-align:center;width:52px">כמות</th><th style="text-align:left;width:110px">מחיר</th></tr>';
+  D.zones.forEach(function(z){
+    if(!z.lines.some(function(l){return !l.gen&&vp(l)!==null;}))return;
+    t+='<tr class="zt"><td>'+esc(z.t)+'</td><td></td><td class="v">'+nf(zsum(z))+' ₪</td></tr>';
+    z.lines.forEach(function(l){if(l.gen)return;var p=vp(l);if(p===null)return;
+      t+='<tr><td>&nbsp;&nbsp;'+esc(l.n)+mlpv(l)+'</td><td style="text-align:center">'+qv(l)+'</td><td class="v">'+nf(p)+' ₪</td></tr>';});
+  });
+  t+='<tr class="zt"><td>כללי</td><td></td><td class="v">'+nf(gensum())+' ₪</td></tr>';
+  D.gen.forEach(function(l){var p=vp(l);if(p===null)return;t+='<tr><td>&nbsp;&nbsp;'+esc(l.n)+mlpv(l)+'</td><td style="text-align:center">'+qv(l)+'</td><td class="v">'+nf(p)+' ₪</td></tr>';});
+  var hv=hobv();if(hv!==null)t+='<tr><td>&nbsp;&nbsp;פירוקים והובלות כלליות</td><td></td><td class="v">'+nf(hv)+' ₪</td></tr>';
+  t+='</table><div class="tots"><div><span>סה״כ סעיפים</span><span>'+nf(base)+' ₪</span></div>'+
+     '<div><span>בצ״מ '+(D.bz||0)+'%</span><span>'+nf(bz)+' ₪</span></div>'+
+     '<div class="f"><span>סה״כ לפני מע״מ</span><span>'+nf(tot)+' ₪</span></div>'+
+     '<div><span>כולל מע״מ 18%</span><span>'+nf(tot*1.18)+' ₪</span></div></div>';
+  if(D.note)t+='<div class="nt"><b>הערות וסייגים</b>'+esc(D.note)+'</div>';
+  document.getElementById("pv").innerHTML=t;
+}
+function aggItems(){
+  var map={},order=[];
+  function add(l){
+    var p=vp(l);if(p===null)return;
+    if(l.gen)return;
+    var key=l.n;
+    var g=(l.g||"סעיפים נוספים");
+    if(!map[key]){map[key]={n:key,g:g,sum:0,cnt:0};order.push(key);}
+    map[key].sum+=p;map[key].cnt+=qv(l);
+  }
+  D.zones.forEach(function(z){z.lines.forEach(add);});
+  D.gen.forEach(add);
+  var hv=hobv();if(hv!==null){map["פירוקים והובלות כלליות"]={n:"פירוקים והובלות כלליות",g:"כללי",sum:hv,cnt:1};order.push("פירוקים והובלות כלליות");}
+  var byg={},go=[];
+  order.forEach(function(k){var o=map[k];if(!byg[o.g]){byg[o.g]=[];go.push(o.g);}byg[o.g].push(o);});
+  return {byg:byg,go:go};
+}
+function exportAgg(){
+  var a=aggItems(),L=[];
+  L.push("הצעת מחיר מרוכזת – בינוי");
+  if(D.proj)L.push(D.proj);
+  var l2=[];if(D.cli)l2.push(D.cli);if(D.addr)l2.push(D.addr);if(l2.length)L.push(l2.join(" · "));
+  if(D.pm)L.push("מנהל פרויקט: "+D.pm);
+  if(D.date)L.push("תאריך: "+fdate(D.date));
+  L.push("(ריכוז כל הסעיפים מכל האיזורים · ללא פילוח לאיזורים)");
+  L.push("");
+  var base=0;
+  a.go.forEach(function(g){
+    var gs=0;a.byg[g].forEach(function(o){gs+=o.sum;});
+    L.push("▪ "+g+" — "+nf(gs)+" ₪");
+    a.byg[g].forEach(function(o){ base+=o.sum; L.push("   • "+o.n+(o.cnt>1?" ×"+o.cnt:"")+" – "+nf(o.sum)+" ₪"); });
+    L.push("");
+  });
+  var bz=base*(D.bz||0)/100;
+  L.push("סה״כ סעיפים: "+nf(base)+" ₪");
+  L.push("בצ״מ "+(D.bz||0)+"%: "+nf(bz)+" ₪");
+  L.push("סה״כ לפני מע״מ: "+nf(base+bz)+" ₪");
+  L.push("כולל מע״מ 18%: "+nf((base+bz)*1.18)+" ₪");
+  if(D.note){L.push("");L.push(D.note);}
+  document.getElementById("outTxt").textContent=L.join("\n");
+  document.getElementById("mod2").classList.add("on");
+}
+function buildPVAgg(){
+  var a=aggItems(),base=0;
+  a.go.forEach(function(g){a.byg[g].forEach(function(o){base+=o.sum;});});
+  var bz=base*(D.bz||0)/100,tot=base+bz;
+  var t='';
+  var det=[["פרויקט",D.proj],["לקוח",D.cli],["כתובת",D.addr],["מנהל פרויקט",D.pm],["תאריך שליחת ההצעה",fdate(D.date)]];
+  t+='<table class="det">';
+  det.forEach(function(d){ t+='<tr><td style="width:130px;color:#5b6676">'+esc(d[0])+'</td><td style="font-weight:700">'+esc(d[1]||"—")+'</td></tr>'; });
+  t+='</table><table style="margin-top:12px"><tr><th>סעיף</th><th style="text-align:center;width:52px">כמות</th><th style="text-align:left;width:110px">מחיר</th></tr>';
+  a.go.forEach(function(g){
+    var gs=0;a.byg[g].forEach(function(o){gs+=o.sum;});
+    t+='<tr class="zt"><td>'+esc(g)+'</td><td></td><td class="v">'+nf(gs)+' ₪</td></tr>';
+    a.byg[g].forEach(function(o){ t+='<tr><td>&nbsp;&nbsp;'+esc(o.n)+'</td><td style="text-align:center">'+o.cnt+'</td><td class="v">'+nf(o.sum)+' ₪</td></tr>'; });
+  });
+  t+='</table><div class="tots"><div><span>סה״כ סעיפים</span><span>'+nf(base)+' ₪</span></div>'+
+     '<div><span>בצ״מ '+(D.bz||0)+'%</span><span>'+nf(bz)+' ₪</span></div>'+
+     '<div class="f"><span>סה״כ לפני מע״מ</span><span>'+nf(tot)+' ₪</span></div>'+
+     '<div><span>כולל מע״מ 18%</span><span>'+nf(tot*1.18)+' ₪</span></div></div>';
+  if(D.note)t+='<div class="nt"><b>הערות וסייגים</b>'+esc(D.note)+'</div>';
+  document.getElementById("pv").innerHTML=t;
+}
+function pdfName(){var n=(D.proj||"").trim()||"הצעת מחיר";return n;}
+function makePDF(agg){if(agg)buildPVAgg();else buildPV();document.title=pdfName();document.getElementById("pvBox").innerHTML=document.getElementById("pv").innerHTML;document.getElementById("mod5").classList.add("on");}
+function doPrint(){document.getElementById("mod5").classList.remove("on");setTimeout(function(){window.print();},150);}
+
+function exportTxt(){
+  var L=[];L.push("הצעת מחיר – בינוי");
+  if(D.proj)L.push(D.proj);
+  var l2=[];if(D.cli)l2.push(D.cli);if(D.addr)l2.push(D.addr);if(l2.length)L.push(l2.join(" · "));
+  if(D.pm)L.push("מנהל פרויקט: "+D.pm);
+  if(D.date)L.push("תאריך: "+fdate(D.date));L.push("");
+  D.zones.forEach(function(z){
+    if(!z.lines.some(function(l){return vp(l)!==null;}))return;
+    L.push("▪ "+z.t+" — "+nf(zsum(z))+" ₪");
+    z.lines.forEach(function(l){var p=vp(l);if(p===null)return;
+      if(l.gen){L.push("   • "+l.n+" – מתומחר בכללי");return;}
+      L.push("   • "+l.n+" – "+nf(p)+" ₪");});
+    L.push("");
+  });
+  var ga=genAgg();
+  L.push("▪ כללי — "+nf(gensum())+" ₪");
+  D.gen.forEach(function(l){var p=vp(l);if(p===null)return;L.push("   • "+l.n+" – "+nf(p)+" ₪");});
+  L.push("");
+  var base=baseTotal(),bz=base*(D.bz||0)/100;
+  L.push("סה״כ סעיפים: "+nf(base)+" ₪");
+  L.push("בצ״מ "+(D.bz||0)+"%: "+nf(bz)+" ₪");
+  L.push("סה״כ לפני מע״מ: "+nf(base+bz)+" ₪");
+  if(D.note){L.push("");L.push(D.note);}
+  document.getElementById("outTxt").textContent=L.join("\n");
+  document.getElementById("mod2").classList.add("on");
+}
+load();fill();render();renderAtts();
+if(location.search.indexOf("new=1")>=0){D=blank();fill();save();render();renderAtts();}
+try{var _qm=location.search.match(/[?&]q=([^&]+)/);if(_qm){var _qi=document.getElementById("catQ");if(_qi){_qi.value=decodeURIComponent(_qm[1]);filterCat();}}}catch(e){}
+if(location.search.indexOf("demo=1")>=0&&!D.zones.length){fillDemo();}
+["mProj","mCli","mAddr","mDate","mNote"].forEach(function(id){document.getElementById(id).addEventListener("input",save);});
+</script></body></html>
