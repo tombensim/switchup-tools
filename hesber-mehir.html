@@ -220,6 +220,7 @@ pre.out{white-space:pre-wrap;font-family:inherit;font-size:12.5px;line-height:1.
 <div id="gtot"></div>
 <div class="sec">פעולות</div>
 <button class="bigbtn fin" onclick="finishQuote()">✔ סיים הצעת מחיר</button>
+<button class="bigbtn wp" onclick="shareQuote()">🔗 שתף הצעה</button>
 <div class="row2"><button class="bigbtn pdf" onclick="makePDF(0)">📄 PDF – הצעה</button><button class="bigbtn pdf2" onclick="makePDF(1)">📄 PDF – מרוכז</button></div>
 <div class="row2"><button class="bigbtn arc" onclick="openArchive()">📂 הצעות שמורות</button><button class="bigbtn red" onclick="resetAll()">＋ הצעה חדשה</button></div>
 <button class="bigbtn wp" onclick="openWorkplan()">🗂 הפוך לתוכנית עבודה</button>
@@ -590,7 +591,39 @@ function fillDemo(){
   if(!D.date)D.date=new Date().toISOString().slice(0,10);
   save();fill();render();window.scrollTo(0,0);
 }
+function b64u(str){var b=new TextEncoder().encode(str);var s2="";for(var i=0;i<b.length;i++)s2+=String.fromCharCode(b[i]);return btoa(s2).split("+").join("-").split("/").join("_").split("=").join("");}
+function unb64u(t){t=t.split("-").join("+").split("_").join("/");while(t.length%4)t+="=";var s2=atob(t);var b=new Uint8Array(s2.length);for(var i=0;i<s2.length;i++)b[i]=s2.charCodeAt(i);return new TextDecoder("utf-8").decode(b);}
+function slimLines(a){return (a||[]).filter(function(l){return (l.q&&l.q>0)||(l.p!==null&&l.p!==undefined&&l.p!=="");}).map(function(l){return {n:l.n,g:l.g,p:l.p,q:l.q,ref:l.ref,gen:l.gen};});}
+function shareQuote(){
+  save();
+  var slim={v:1,proj:D.proj,cli:D.cli,addr:D.addr,date:D.date,pm:D.pm,note:D.note,bz:D.bz,hob:D.hob,
+    zones:(D.zones||[]).map(function(z){return {t:z.t,open:z.open,lines:slimLines(z.lines)};}),
+    gen:slimLines(D.gen)};
+  var url=location.origin+location.pathname+"#q="+b64u(JSON.stringify(slim));
+  if(url.length>7500){alert("ההצעה גדולה מדי לשיתוף בקישור. סיים והפק PDF.");return;}
+  var txt="הצעת מחיר"+(D.proj?" – "+D.proj:"")+String.fromCharCode(10)+url;
+  if(navigator.share){navigator.share({text:txt}).catch(function(){});return;}
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(url).then(function(){alert("הקישור הועתק. הדבק בוואטסאפ ושלח.");},function(){prompt("העתק את הקישור:",url);});return;}
+  prompt("העתק את הקישור:",url);
+}
+function tryImport(){
+  var hh=location.hash||""; if(hh.indexOf("#q=")!==0) return false; var m=[null,hh.slice(3)];
+  var o=null; try{o=JSON.parse(unb64u(m[1]));}catch(e){ alert("הקישור פגום"); history.replaceState(null,"",location.pathname); return false; }
+  if(!confirm("נשלחה אליך הצעת מחיר"+(o.proj?' – '+o.proj:'')+". לטעון אותה? ההצעה שעל המסך תישמר בארכיון."))
+    { history.replaceState(null,"",location.pathname); return false; }
+  try{ var cur=null; try{cur=JSON.parse(localStorage.getItem("gilquote_v6")||"null");}catch(e){}
+    if(cur&&((cur.zones&&cur.zones.length)||cur.proj)){var a=arcGet();a.unshift({t:(cur.proj||"הצעה")+" (לפני שיתוף)",ts:Date.now(),d:cur});arcSet(a);} }catch(e){}
+  var nd=blank();
+  ["proj","cli","addr","date","pm","note","bz","hob"].forEach(function(k){ if(o[k]!==undefined) nd[k]=o[k]; });
+  nd.gen=migrate(o.gen||[],freshGen()).map(norm);
+  nd.zones=(o.zones||[]).map(function(z){return {t:z.t,open:!!z.open,lines:migrate(z.lines||[],freshZoneLines()).map(norm)};});
+  nd.atts=[];
+  D=nd; try{localStorage.setItem("gilquote_v6",JSON.stringify(D));}catch(e){}
+  history.replaceState(null,"",location.pathname);
+  return true;
+}
 function arcGet(){try{return JSON.parse(localStorage.getItem("gilquote_arc")||"[]");}catch(e){return [];}}
+function load2(){if(!D)return;if(!D.zones)D.zones=[];if(!D.gen)D.gen=freshGen();if(!D.atts)D.atts=[];if(!D.hob)D.hob={p:null,q:1};var oz=-1;for(var zi=0;zi<D.zones.length;zi++){if(D.zones[zi].open){oz=zi;break;}}CURZONE=(oz>=0?oz:0);}
 function arcSet(a){try{localStorage.setItem("gilquote_arc",JSON.stringify(a));}catch(e){alert("אין מספיק מקום לשמירה במכשיר");}}
 function arcSave(){
   var nm=(D.proj||"").trim();
@@ -810,7 +843,7 @@ function exportTxt(){
   document.getElementById("outTxt").textContent=L.join("\n");
   document.getElementById("mod2").classList.add("on");
 }
-load();fill();render();renderAtts();
+load();tryImport();load2();fill();render();renderAtts();
 if(location.search.indexOf("new=1")>=0){D=blank();fill();save();render();renderAtts();}
 try{var _qm=location.search.match(/[?&]q=([^&]+)/);if(_qm){var _qi=document.getElementById("catQ");if(_qi){_qi.value=decodeURIComponent(_qm[1]);filterCat();}}}catch(e){}
 if(location.search.indexOf("demo=1")>=0&&!D.zones.length){fillDemo();}
