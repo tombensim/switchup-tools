@@ -624,7 +624,7 @@ function tryImport(){
   if(!confirm("נשלחה אליך הצעת מחיר"+(o.proj?' – '+o.proj:'')+". לטעון אותה? ההצעה שעל המסך תישמר בארכיון."))
     { history.replaceState(null,"",location.pathname); return false; }
   try{ var cur=null; try{cur=JSON.parse(localStorage.getItem("gilquote_v6")||"null");}catch(e){}
-    if(cur&&((cur.zones&&cur.zones.length)||cur.proj)){var a=arcGet();a.unshift({t:(cur.proj||"הצעה")+" (לפני שיתוף)",ts:Date.now(),d:cur});arcSet(a);} }catch(e){}
+    if(cur&&((cur.zones&&cur.zones.length)||cur.proj)){var a=arcGet();a.unshift({nm:(cur.proj||"הצעה")+" (לפני שיתוף)",ts:new Date().toISOString(),tot:0,d:cur});arcSet(a);} }catch(e){}
   var nd=blank();
   ["proj","cli","addr","date","pm","note","bz","hob"].forEach(function(k){ if(o[k]!==undefined) nd[k]=o[k]; });
   nd.gen=migrate(o.gen||[],freshGen()).map(norm);
@@ -648,7 +648,7 @@ function openArchive(){
   var a=arcGet(),h="";
   if(!a.length)h='<div class="empt">אין הצעות שמורות</div>';
   else a.forEach(function(q,i){
-    h+='<div class="qrow"><div class="qtop"><div class="qn">'+esc(q.nm)+'<div class="qd">'+fdate((q.ts||"").slice(0,10))+' · '+nf(q.tot||0)+' ₪</div></div></div>'+
+    h+='<div class="qrow"><div class="qtop"><div class="qn">'+esc(q.nm||q.t||"הצעה")+'<div class="qd">'+fdate(String(q.ts||"").slice(0,10))+' · '+nf(q.tot||0)+' ₪</div></div></div>'+
        '<div class="qact"><button class="pv" onclick="arcPDF('+i+')">📄 PDF</button><button class="ld" onclick="arcLoad('+i+')">טען</button><button class="wpb" onclick="arcWorkplan('+i+')">🗂 תוכנית עבודה</button><button class="pv" onclick="arcShare('+i+')">🔗 שתף</button><button class="wpb" onclick="arcShareWA('+i+')">📲 לרוקי</button><button class="dl" onclick="arcDel('+i+')">מחק</button></div></div>';
   });
   document.getElementById("arcBox").innerHTML=h;
