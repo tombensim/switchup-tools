@@ -107,8 +107,10 @@ body.searching .zbody{display:block !important}
 .bigbtn.red{background:#e05a5a}
 .bigbtn.arc{background:#6b53b8}
 .bigbtn.wp{background:#2f6fed}
-.grp.gcl{cursor:pointer;display:flex;align-items:center;justify-content:space-between}
-.gcv{font-size:15px;opacity:.75;margin-inline-start:8px}
+.catlist{max-height:68vh;overflow:auto;margin-bottom:12px}
+.cvrow{display:flex;justify-content:space-between;gap:10px;padding:8px 6px;border-bottom:1px solid #e6ecf5;font-size:14px}
+.cvn{font-weight:600}
+.cvp{color:#2f4a75;font-weight:800;white-space:nowrap}
 .wphd{margin-bottom:12px}
 .wpt{font-size:18px;font-weight:900;color:#1d2b45;margin-bottom:8px}
 .wpbar{height:12px;background:#e6ecf5;border-radius:8px;overflow:hidden}
@@ -214,7 +216,7 @@ pre.out{white-space:pre-wrap;font-family:inherit;font-size:12.5px;line-height:1.
 <div class="card"><textarea id="mNote"></textarea></div>
 <div class="sec">איזורים</div>
 <div id="zones"></div>
-<div class="row3"><button class="bigbtn" onclick="addZone()">+ פתח איזור</button><button class="bigbtn red" onclick="cancelZone()">✕ בטל איזור</button><button class="bigbtn alt" onclick="resetZone()">↺ אפס איזור</button></div><button class="bigbtn alt" onclick="collapseAll()" id="colAllBtn">⊟ סגור את כל הקטגוריות והאיזורים</button>
+<div class="row3"><button class="bigbtn" onclick="addZone()">+ פתח איזור</button><button class="bigbtn red" onclick="cancelZone()">✕ בטל איזור</button><button class="bigbtn alt" onclick="resetZone()">↺ אפס איזור</button></div><button class="bigbtn pdf2" onclick="openCat()">📖 כל הקטגוריות והמחירים</button>
 <div id="gtot"></div>
 <div class="sec">פעולות</div>
 <button class="bigbtn fin" onclick="finishQuote()">✔ סיים הצעת מחיר</button>
@@ -222,6 +224,11 @@ pre.out{white-space:pre-wrap;font-family:inherit;font-size:12.5px;line-height:1.
 <div class="row2"><button class="bigbtn arc" onclick="openArchive()">📂 הצעות שמורות</button><button class="bigbtn red" onclick="resetAll()">＋ הצעה חדשה</button></div>
 <button class="bigbtn wp" onclick="openWorkplan()">🗂 הפוך לתוכנית עבודה</button>
 </div>
+<div class="modal" id="mod7"><div class="sheet">
+<h3>כל הקטגוריות והמחירים</h3>
+<div id="catList" class="catlist"></div>
+<button class="bigbtn alt" onclick="closeCat()">סגור</button>
+</div></div>
 <footer>
 <div class="frow"><span>סה״כ סעיפים</span><span id="fBase">0 ₪</span></div>
 <div class="frow"><span>בצ״מ <input id="fBz" type="number" inputmode="numeric" value="10" oninput="save();render()">%</span><span id="fBzv">0 ₪</span></div>
@@ -258,7 +265,7 @@ pre.out{white-space:pre-wrap;font-family:inherit;font-size:12.5px;line-height:1.
 <div id="pv"></div>
 
 <script>
-var CATALOG=[{"g":"פירוקים והריסות","items":[{"n":"פירוקים והובלות כלליות","ref":500},{"n":"פירוק אינובייט","ref":1600},{"n":"פירוק אינובייט עד 5 מ׳","ref":2800},{"n":"פירוק קיר גבס","ref":2000},{"n":"פירוק מחיצה + דלת + גבס","ref":3000},{"n":"פירוק סינר","ref":3000},{"n":"פירוק נגרות (שולחן/ספסלים) כולל מכולה","ref":3000},{"n":"פירוק תאורה קיימת","ref":2000},{"n":"פינוי חדר כושר קיים","ref":null}]},{"g":"גבס · בנייה · גמר","items":[{"n":"תיקוני גבס לאחר פירוק אינובייט (ללא סינרים)","ref":2000},{"n":"תיקוני גבס לאחר פירוקים","ref":2000},{"n":"בניית קירות","ref":8000},{"n":"הנמכת תקרה","ref":3000},{"n":"השלמת ספוגים","ref":1500},{"n":"חשיפת ספוגים בחדר (תוספת)","ref":3000},{"n":"השלמת פרקט","ref":1500},{"n":"השלמת פלח מתכת","ref":2000},{"n":"התקנת לבד כולל חומר","ref":1700},{"n":"הסרת לבד","ref":null},{"n":"חיזוק לטלוויזיה לקיר קיים","ref":null},{"n":"הכנה לקיר טפט (בונדרול)","ref":null}]},{"g":"חשמל ותאורה","items":[{"n":"התאמות חשמל – בסיסי","ref":700},{"n":"התאמות חשמל (סימבוקס/הזנת שולחן/חדר מנהל)","ref":1500},{"n":"ביטול חשמל מהרצפה","ref":1000},{"n":"התאמות חשמל ותאורה (חדר רטוב/מקלחת)","ref":5000},{"n":"התאמות חשמל לעמדות עבודה חדשות","ref":2000},{"n":"התקנת תאורה","ref":5000},{"n":"העברת מתג תאורה","ref":2000},{"n":"פרט הדלקה","ref":1000},{"n":"ביטול תרמוסטט","ref":2000},{"n":"פירוק גופי תאורה קיימים","ref":500},{"n":"הוספת חשמל ותקשורת – חדר ישיבות","ref":null},{"n":"תוספת שקע כוח מארון חשמל","ref":null},{"n":"חשמל – הכנה למקרן","ref":null},{"n":"ביטול חשמל/סימבוקס","ref":null},{"n":"התאמות חשמל – על ידי תעלת דריכה","ref":null},{"n":"שרשור סימבוקס לשולחן חדר ישיבות","ref":null},{"n":"שרשור חשמל מטלוויזיה לשולחן חדר ישיבות","ref":null},{"n":"הוספת מתג תאורה","ref":null},{"n":"סימבוקס לטלוויזיה כולל HDMI ותקשורת","ref":null},{"n":"שרשור סימבוקס לחדר ישיבות על ידי תעלת דריכה","ref":null},{"n":"שרשור משולחן חדר ישיבות לטלוויזיה על ידי תעלת דריכה","ref":null},{"n":"שרשור לשולחן חדר ישיבות על ידי תעלת דריכה","ref":null},{"n":"שרשור סימבוקס","ref":null}]},{"g":"מיזוג ואוורור","items":[{"n":"התקנת מזגן","ref":2000},{"n":"הזזת מזגן","ref":2000},{"n":"העברת תרמוסטט","ref":1500},{"n":"התקנת וונטה","ref":3000},{"n":"קיצור תעלת מיזוג","ref":null},{"n":"הזזת יחידת אינובייט","ref":null},{"n":"פינוי עשן / ארובה","ref":null},{"n":"כיבוי בגז","ref":null}]},{"g":"ריצוף וחיפוי","items":[{"n":"ריצוף קרמיקה לחדר כולל פירוק ופינוי פרקט קיים","ref":20000},{"n":"ריצוף רצפה + חיפוי חצי גובה (חדר רטוב)","ref":10000},{"n":"ריצוף אנטיסטטי","ref":6000},{"n":"חיפוי קיר מטבח","ref":null},{"n":"חיפוי מטבח","ref":null},{"n":"סגירת חור ברצפה בדבק קרמיקה","ref":0}]},{"g":"אינסטלציה","items":[{"n":"דוד מים","ref":7000},{"n":"נקודות מים","ref":4000},{"n":"ניקוז (כולל הגבהה למקלחת)","ref":4000},{"n":"התקנת כיור מקלחון ואביזרי מקלחת (ללא אביזרים)","ref":2500},{"n":"ביטול נקודת מים","ref":null}]},{"g":"נגרות ואחר","items":[{"n":"דלת","ref":3000},{"n":"העברת ספסל והתאמות לעמוד קיים","ref":3000},{"n":"עמוד לטלוויזיה","ref":null},{"n":"שלב – רהיטים","ref":null},{"n":"ארונות כלים","ref":null}]},{"g":"רכש עיצוב (באחריות מעצבת)","items":[{"n":"אפיציו","ref":2000},{"n":"אביזרים שולחניים","ref":2000}]},{"g":"בינוי ועיצוב","items":[{"n":"פספוסי עיצוב","ref":null}]}];
+var CATALOG=[{"g":"פירוקים והריסות","items":[{"n":"פירוקים והובלות כלליות","ref":500},{"n":"פירוק אינובייט","ref":1600},{"n":"פירוק אינובייט עד 5 מ׳","ref":2800},{"n":"פירוק קיר גבס","ref":2000},{"n":"פירוק מחיצה + דלת + גבס","ref":3000},{"n":"פירוק סינר","ref":3000},{"n":"פירוק נגרות (שולחן/ספסלים) כולל מכולה","ref":3000},{"n":"פירוק תאורה קיימת","ref":2000},{"n":"פינוי חדר כושר קיים","ref":null}]},{"g":"גבס · בנייה · גמר","items":[{"n":"תיקוני גבס לאחר פירוק אינובייט (ללא סינרים)","ref":2000},{"n":"תיקוני גבס לאחר פירוקים","ref":2000},{"n":"בניית קירות","ref":8000},{"n":"הנמכת תקרה","ref":3000},{"n":"השלמת ספוגים","ref":1500},{"n":"חשיפת ספוגים בחדר (תוספת)","ref":3000},{"n":"השלמת פרקט","ref":1500},{"n":"השלמת פלח מתכת","ref":2000},{"n":"התקנת לבד כולל חומר","ref":1700},{"n":"הסרת לבד","ref":null},{"n":"חיזוק לטלוויזיה לקיר קיים","ref":null},{"n":"הכנת קיר לטפט (בונדרול)","ref":null}]},{"g":"חשמל ותאורה","items":[{"n":"התאמות חשמל – בסיסי","ref":700},{"n":"התאמות חשמל (סימבוקס/הזנת שולחן/חדר מנהל)","ref":1500},{"n":"ביטול חשמל מהרצפה","ref":1000},{"n":"התאמות חשמל ותאורה (חדר רטוב/מקלחת)","ref":5000},{"n":"התאמות חשמל לעמדות עבודה חדשות","ref":2000},{"n":"התקנת תאורה","ref":5000},{"n":"העברת מתג תאורה","ref":2000},{"n":"פרט הדלקה","ref":1000},{"n":"ביטול תרמוסטט","ref":2000},{"n":"פירוק גופי תאורה קיימים","ref":500},{"n":"הוספת חשמל ותקשורת – חדר ישיבות","ref":null},{"n":"תוספת שקע כוח מארון חשמל","ref":null},{"n":"חשמל – הכנה למקרן","ref":null},{"n":"ביטול חשמל/סימבוקס","ref":null},{"n":"התאמות חשמל – על ידי תעלת דריכה","ref":null},{"n":"שרשור סימבוקס לשולחן חדר ישיבות","ref":null},{"n":"שרשור חשמל מטלוויזיה לשולחן חדר ישיבות","ref":null},{"n":"הוספת מתג תאורה","ref":null},{"n":"סימבוקס לטלוויזיה כולל HDMI ותקשורת","ref":null},{"n":"שרשור סימבוקס לחדר ישיבות על ידי תעלת דריכה","ref":null},{"n":"שרשור משולחן חדר ישיבות לטלוויזיה על ידי תעלת דריכה","ref":null},{"n":"שרשור לשולחן חדר ישיבות על ידי תעלת דריכה","ref":null},{"n":"שרשור סימבוקס","ref":null}]},{"g":"מיזוג ואוורור","items":[{"n":"התקנת מזגן","ref":2000},{"n":"הזזת מזגן","ref":2000},{"n":"העברת תרמוסטט","ref":1500},{"n":"התקנת וונטה","ref":3000},{"n":"קיצור תעלת מיזוג","ref":null},{"n":"הזזת יחידת מיזוג","ref":null},{"n":"פינוי עשן / ארובה","ref":null},{"n":"כיבוי בגז","ref":null}]},{"g":"ריצוף וחיפוי","items":[{"n":"ריצוף קרמיקה לחדר כולל פירוק ופינוי פרקט קיים","ref":20000},{"n":"ריצוף רצפה + חיפוי חצי גובה (חדר רטוב)","ref":10000},{"n":"ריצוף אנטיסטטי","ref":6000},{"n":"חיזוק קיר מטבח","ref":null},{"n":"חיפוי מטבח","ref":null},{"n":"סגירת חור ברצפה בדבק קרמיקה","ref":0}]},{"g":"אינסטלציה","items":[{"n":"דוד מים","ref":7000},{"n":"נקודות מים","ref":4000},{"n":"ניקוז (כולל הגבהה למקלחת)","ref":4000},{"n":"התקנת כיור מקלחון ואביזרי מקלחת (ללא אביזרים)","ref":2500},{"n":"ביטול נקודת מים","ref":null}]},{"g":"נגרות ואחר","items":[{"n":"דלת","ref":3000},{"n":"העברת ספסל והתאמות לעמוד קיים","ref":3000},{"n":"עמוד לטלוויזיה","ref":null},{"n":"עיצוב – רהיטים","ref":null},{"n":"עובדים כלליים","ref":null}]},{"g":"רכש עיצוב (באחריות מעצבת)","items":[{"n":"אפיציו","ref":2000},{"n":"אביזרים שולחניים","ref":2000}]},{"g":"בינוי ועיצוב","items":[{"n":"פספוסי עיצוב","ref":null}]}];
 var GENCAT=[{"n":"תוכנית בטיחות","ref":4000},{"n":"התאמות לתוכנית בטיחות","ref":5000},{"n":"הפעלות בקרות ומערכות","ref":7500},{"n":"צבע – קומה מלאה (ערבה תיקונים בלבד)","ref":37000},{"n":"ניקיון קבלני לקומה","ref":20000},{"n":"החלפת צילינדר","ref":500}];
 var HOBREF=500;
 var DEFNOTE="התמחור בוצע על פי תוכנית ״עננים״ מול תוכנית מצב קיים, ללא סט תוכניות מלא. תמחור מדויק יינתן בהתאם לסט תוכניות מלא.\nלא כולל: כיבוי בגז · שינויים/ביטולים של ספרינקלרים · התאמות מיזוג · ארונות תקשורת · רכש עיצוב וריהוט.";
@@ -335,9 +342,8 @@ function linesHTML(lines,zi){
   GREG[zi]=order;
   var h="";
   order.forEach(function(g,gi){
-    var gcl=!!GCOL[zi+"|"+g];
-    h+='<div class="grp gcl" onclick="tglGrp('+zi+','+gi+')">'+esc(g)+'<span class="gcv">'+(gcl?"▸":"▾")+'</span></div>';
-    if(!gcl) byg[g].forEach(function(o){ h+=lineHTML(o.l,zi,o.i); });
+    h+='<div class="grp">'+esc(g)+'</div>';
+    byg[g].forEach(function(o){ h+=lineHTML(o.l,zi,o.i); });
     var rem=[];
     if(rem.length){
       var key=zi+"|"+gi, open=!!UNDO[key];
@@ -536,7 +542,19 @@ function resetZone(){var i=curZoneIdx();if(i<0){alert("אין איזור פתו�
   D.zones[i].lines=freshZoneLines();D.zones[i].open=true;save();render();}
 var GCOL={};
 function tglGrp(zi,gi){var g=(GREG[zi]||[])[gi];if(!g)return;var k=zi+"|"+g;if(GCOL[k])delete GCOL[k];else GCOL[k]=true;render();}
-function collapseAll(){
+function openCat(){
+  var h='';
+  GENCAT.forEach(function(it,i){ if(i===0) h+='<div class="grp">סעיפים כלליים (קומה)</div>';
+    h+='<div class="cvrow"><span class="cvn">'+esc(it.n)+'</span><span class="cvp">'+(it.ref===null||it.ref===undefined?'—':nf(it.ref)+' ₪')+'</span></div>'; });
+  CATALOG.forEach(function(c){
+    h+='<div class="grp">'+esc(c.g)+'</div>';
+    c.items.forEach(function(it){
+      h+='<div class="cvrow"><span class="cvn">'+esc(it.n)+'</span><span class="cvp">'+(it.ref===null||it.ref===undefined?'—':nf(it.ref)+' ₪')+'</span></div>'; });
+  });
+  document.getElementById("catList").innerHTML=h;
+  document.getElementById("mod7").classList.add("on");}
+function closeCat(){document.getElementById("mod7").classList.remove("on");}
+function collapseAllUnused(){
   var anyOpen=D.zones.some(function(z){return z.open;});
   var anyGrpOpen=false;
   D.zones.forEach(function(z,zi){z.lines.forEach(function(l){var g=l.g||"סעיפים נוספים";if(!GCOL[zi+"|"+g])anyGrpOpen=true;});});
