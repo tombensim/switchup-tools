@@ -596,6 +596,10 @@ function unb64u(t){t=t.split("-").join("+").split("_").join("/");while(t.length%
 function slimLines(a){return (a||[]).filter(function(l){return (l.q&&l.q>0)||(l.p!==null&&l.p!==undefined&&l.p!=="");}).map(function(l){return {n:l.n,g:l.g,p:l.p,q:l.q,ref:l.ref,gen:l.gen};});}
 function shareQuote(){
   save();
+  shareDoc(D);
+}
+function arcShare(i){var a=arcGet();if(!a[i])return;shareDoc(a[i].d);}
+function shareDoc(D){
   var slim={v:1,proj:D.proj,cli:D.cli,addr:D.addr,date:D.date,pm:D.pm,note:D.note,bz:D.bz,hob:D.hob,
     zones:(D.zones||[]).map(function(z){return {t:z.t,open:z.open,lines:slimLines(z.lines)};}),
     gen:slimLines(D.gen)};
@@ -637,7 +641,7 @@ function openArchive(){
   if(!a.length)h='<div class="empt">אין הצעות שמורות</div>';
   else a.forEach(function(q,i){
     h+='<div class="qrow"><div class="qtop"><div class="qn">'+esc(q.nm)+'<div class="qd">'+fdate((q.ts||"").slice(0,10))+' · '+nf(q.tot||0)+' ₪</div></div></div>'+
-       '<div class="qact"><button class="pv" onclick="arcPDF('+i+')">📄 PDF</button><button class="ld" onclick="arcLoad('+i+')">טען</button><button class="wpb" onclick="arcWorkplan('+i+')">🗂 תוכנית עבודה</button><button class="dl" onclick="arcDel('+i+')">מחק</button></div></div>';
+       '<div class="qact"><button class="pv" onclick="arcPDF('+i+')">📄 PDF</button><button class="ld" onclick="arcLoad('+i+')">טען</button><button class="wpb" onclick="arcWorkplan('+i+')">🗂 תוכנית עבודה</button><button class="pv" onclick="arcShare('+i+')">🔗 שתף</button><button class="dl" onclick="arcDel('+i+')">מחק</button></div></div>';
   });
   document.getElementById("arcBox").innerHTML=h;
   document.getElementById("mod4").classList.add("on");
