@@ -1,5 +1,5 @@
 <!doctype html><html lang="he" dir="rtl"><head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><meta name="color-scheme" content="light">
 <title>הצעות מחיר · בינוי</title>
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -69,6 +69,14 @@ body.searching .zbody{display:block !important}
 .nmtxt{cursor:pointer;display:inline-block}
 .nmedit{flex:1;min-width:0;width:100%;border:1.5px solid #c9d3e2;border-radius:8px;padding:7px 9px;font-size:14px;font-family:inherit;color:#16202e;background:#fff;outline:none}
 .nmedit:focus{border-color:#2f4a75;background:#fbfdff}
+.refshade{position:fixed;inset:0;background:rgba(10,20,40,.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px}
+.refbox{width:min(100%,420px);background:#fff;color:#16202e;border-radius:16px;padding:22px;box-shadow:0 12px 35px #1115;direction:rtl}
+.refbox strong{display:block;font-size:20px;margin-bottom:12px}
+.refbox input{display:block;width:100%;border:2px solid #8196b5;border-radius:10px;background:#fff!important;color:#16202e!important;-webkit-text-fill-color:#16202e!important;font-size:24px;padding:12px;direction:ltr;text-align:right;opacity:1;caret-color:#16202e}
+.refbox .referr{color:#b5231b;min-height:22px;font-size:13px;margin-top:5px}
+.refbox .refactions{display:flex;gap:10px;justify-content:flex-end;margin-top:12px}
+.refbox button{border:0;border-radius:9px;padding:10px 20px;font-size:16px;font-weight:700;font-family:inherit;background:#e9eef5;color:#16202e}
+.refbox button.refsave{background:#2f4a75;color:#fff}
 .nmdone{border:none;background:#d9ecdd;color:#127a41;width:30px;height:32px;border-radius:7px;font-size:16px;font-weight:800;cursor:pointer;flex:0 0 auto}
 .nmdel{border:none;background:#f3d6d6;color:#b5231b;width:30px;height:32px;border-radius:7px;font-size:16px;font-weight:800;cursor:pointer;flex:0 0 auto}
 .line{display:flex;align-items:center;gap:6px;padding:8px 11px;border-bottom:1px solid #f2f5fa}
@@ -402,16 +410,27 @@ function rref(n,d){return (REFS&&REFS[n]!==undefined&&REFS[n]!==null)?REFS[n]:(d
 var LP=null,LPFIRED=false;
 function editRef(zi,li){
   var l=arr(zi)[li];if(!l)return;
-  var r=prompt("מחיר חדש לסעיף:\n"+l.n,(l.ref==null?"":l.ref));
-  if(r===null)return;
-  r=(r+"").trim();var v=(r===""?null:(parseFloat(r.replace(/[^0-9.]/g,""))||0));
-  if(v===null)return;
-  var perm=confirm("לעדכן את המחירון באופן קבוע?\nאישור = שינוי קבוע לכל ההצעות · ביטול = חד פעמי בהצעה זו בלבד");
-  if(perm){ REFS[l.n]=v; refsSet(REFS);
-    D.zones.forEach(function(z){z.lines.forEach(function(x){if(x.n===l.n)x.ref=v;});});
-    D.gen.forEach(function(x){if(x.n===l.n)x.ref=v;});
-  } else { l.ref=v; }
-  l.p=v;save();render();
+  var shade=document.createElement("div");shade.className="refshade";
+  shade.innerHTML='<div class="refbox" role="dialog" aria-modal="true"><strong>מחיר חדש לסעיף</strong><div class="refname"></div><input type="text" inputmode="decimal" aria-label="מחיר חדש"><div class="referr" role="alert"></div><div class="refactions"><button type="button" class="refcancel">ביטול</button><button type="button" class="refsave">אישור</button></div></div>';
+  shade.querySelector(".refname").textContent=l.n;
+  var inp=shade.querySelector("input"),err=shade.querySelector(".referr");
+  inp.value=l.ref==null?"":String(l.ref);
+  var close=function(){shade.remove();};
+  shade.querySelector(".refcancel").onclick=close;
+  shade.onclick=function(e){if(e.target===shade)close();};
+  shade.querySelector(".refsave").onclick=function(){
+    var raw=inp.value.trim().replace(/[,\s]/g,"");
+    if(!/^\d+(?:\.\d{1,2})?$/.test(raw)||!Number.isFinite(Number(raw))){err.textContent="יש להזין מספר תקין";inp.focus();return;}
+    var v=Number(raw);close();
+    var perm=confirm("לעדכן את המחירון באופן קבוע?\nאישור = שינוי קבוע לכל ההצעות · ביטול = חד פעמי בהצעה זו בלבד");
+    if(perm){REFS[l.n]=v;refsSet(REFS);
+      D.zones.forEach(function(z){z.lines.forEach(function(x){if(x.n===l.n)x.ref=v;});});
+      D.gen.forEach(function(x){if(x.n===l.n)x.ref=v;});
+    }else{l.ref=v;}
+    l.p=v;save();render();
+  };
+  inp.onkeydown=function(e){if(e.key==="Enter")shade.querySelector(".refsave").click();if(e.key==="Escape")close();};
+  document.body.appendChild(shade);inp.focus();inp.select();
 }
 function lpStart(e){var b=e.target&&e.target.closest?e.target.closest(".rfb"):null;if(!b)return;LPFIRED=false;var zi=parseInt(b.getAttribute("data-zi"),10),li=parseInt(b.getAttribute("data-li"),10);if(isNaN(zi)||isNaN(li))return;LP=setTimeout(function(){LPFIRED=true;LP=null;editRef(zi,li);},600);}
 function lpEnd(){if(LP){clearTimeout(LP);LP=null;}}
