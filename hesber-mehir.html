@@ -230,6 +230,9 @@ footer{background:#e8efff;color:#243354;box-shadow:0 -2px 12px #263f6620}
 .frow.big{border-top-color:#b9cbea}
 .frow input{background:#fff;color:#243354;-webkit-text-fill-color:#243354;border:1px solid #b9cbea}
 .bar{background:#ccd9f1}.bar i{background:#74bea1}.prg{color:#175b45}
+.addcategory{background:#eee5f9!important;color:#513b71!important;border:1.5px solid #cebce4!important;margin-bottom:10px!important}
+.customgrp{display:flex;align-items:center;justify-content:space-between;background:#eee5f9;color:#513b71;font-size:13px}
+.catdel{border:1px solid #e9baa6;border-radius:8px;background:#ffe5d8;color:#793c28;font-size:11px;font-weight:700;font-family:inherit;padding:5px 8px}
 /* כל פקדי השורה בקו אחד; השם והמלל המפורט נשארים מעליהם */
 .line,.line.editing{display:block;padding:10px 9px}
 .line .nm,.line.editing .nm{width:100%;margin-bottom:7px}
@@ -259,6 +262,7 @@ footer{background:#e8efff;color:#243354;box-shadow:0 -2px 12px #263f6620}
 <div class="wrap">
 <div class="catsearch"><input id="catQ" aria-label="חיפוש בכל המחירון" placeholder="🔍 חיפוש בכל המחירון…" oninput="filterCat()"><button class="catclr" aria-label="נקה חיפוש" onclick="document.getElementById('catQ').value='';filterCat();">✕</button></div>
 <button class="bigbtn pdf2 catall" onclick="openCat()">📖 כל הקטגוריות והמחירים</button>
+<button class="bigbtn addcategory" onclick="addCategory()">＋ הוסף קטגוריה</button>
 <div id="catRes" style="display:none"></div>
 <div class="sec">סעיפים כלליים (קומה)</div>
 <div id="genc"></div>
@@ -333,7 +337,7 @@ var GENLBL="פירוקים והובלות כלליות";
 var D=null;
 function freshZoneLines(){var a=[];CATALOG.forEach(function(g){g.items.forEach(function(it){a.push({n:it.n,g:g.g,ref:rref(it.n,it.ref),gen:!!it.gen,p:null,q:0});});});return a;}
 function freshGen(){return GENCAT.map(function(it){return {n:it.n,g:"כללי",ref:rref(it.n,it.ref),p:null,q:0};});}
-function blank(){return {proj:"",cli:"",addr:"",date:new Date().toISOString().slice(0,10),pm:"",note:DEFNOTE,bz:10,zones:[],gen:freshGen(),atts:[],hob:{p:null,q:1}};}
+function blank(){return {proj:"",cli:"",addr:"",date:new Date().toISOString().slice(0,10),pm:"",note:DEFNOTE,bz:10,zones:[],gen:freshGen(),customCats:[],atts:[],hob:{p:null,q:1}};}
 var UNDO={};
 function migrate(lines,fresh){
   var out=[],used={};
@@ -347,7 +351,7 @@ function migrate(lines,fresh){
   return out;
 }
 function norm(l){delete l.d;delete l.x;var q=num(l.q);if(q===null||q<0)q=0;if(num(l.p)===null)q=0;l.q=Math.round(q);return l;}
-function load(){var s=null;try{s=localStorage.getItem("gilquote_v6");}catch(e){}try{D=s?JSON.parse(s):blank();}catch(e){D=blank();}if(!D.zones)D.zones=[];if(!D.gen)D.gen=freshGen();if(!D.atts)D.atts=[];if(!D.hob)D.hob={p:null,q:1};
+function load(){var s=null;try{s=localStorage.getItem("gilquote_v6");}catch(e){}try{D=s?JSON.parse(s):blank();}catch(e){D=blank();}if(!D.zones)D.zones=[];if(!D.gen)D.gen=freshGen();if(!Array.isArray(D.customCats))D.customCats=[];if(!D.atts)D.atts=[];if(!D.hob)D.hob={p:null,q:1};
   D.zones.forEach(function(z){z.lines=migrate(z.lines||[],freshZoneLines()).map(norm);});
   D.gen=migrate(D.gen||[],freshGen()).map(norm);
   var oz=-1;for(var zi=0;zi<D.zones.length;zi++){if(D.zones[zi].open){oz=zi;break;}}
@@ -399,11 +403,14 @@ var GREG={};
 function linesHTML(lines,zi){
   var order=[],byg={};
   lines.forEach(function(l,li){var g=l.g||"סעיפים נוספים";if(!byg[g]){byg[g]=[];order.push(g);}byg[g].push({l:l,i:li});});
+  if(zi<0)(D.customCats||[]).forEach(function(g){if(!byg[g]){byg[g]=[];order.push(g);}});
   GREG[zi]=order;
   var h="";
   order.forEach(function(g,gi){
-    h+='<div class="grp">'+esc(g)+'</div>';
+    var ci=zi<0?(D.customCats||[]).indexOf(g):-1;
+    h+='<div class="grp'+(ci>=0?' customgrp':'')+'">'+esc(g)+(ci>=0?'<button type="button" class="catdel" aria-label="מחק קטגוריה" onclick="removeCategory('+ci+')">✕ מחק קטגוריה</button>':'')+'</div>';
     byg[g].forEach(function(o){ h+=lineHTML(o.l,zi,o.i); });
+    if(ci>=0)h+='<div class="addrow"><button onclick="addFreeCat('+ci+')">＋ סעיף לקטגוריה</button></div>';
     var rem=[];
     if(rem.length){
       var key=zi+"|"+gi, open=!!UNDO[key];
@@ -569,8 +576,7 @@ function render(){
   document.getElementById("zones").innerHTML=h||'';
   var ga=genAgg();
   var aggHTML='';
-  document.getElementById("genc").innerHTML='<div class="card">'+aggHTML+linesHTML(D.gen,-1)+
-    '<div class="addrow"><button onclick="addFree(-1)">+ סעיף חופשי כללי</button></div></div>';
+  document.getElementById("genc").innerHTML='<div class="card">'+aggHTML+linesHTML(D.gen,-1)+'</div>';
   var hb=document.getElementById("hobc");
   if(hb){var ag=genAgg(),hh="";
     if(!ag.any)hh='<div class="empt">ממלאים בכל איזור בסעיף הראשון · הסכום מתרכז כאן</div>';
@@ -642,6 +648,23 @@ function editLine(zi,li){EDIT[zi+"|"+li]=true;render();
 function doneLine(zi,li){delete EDIT[zi+"|"+li];render();}
 function addFree(zi){arr(zi).push({n:"",g:"סעיפים נוספים",ref:null,p:null,d:false,x:false,free:true});EDIT[zi+"|"+(arr(zi).length-1)]=true;save();render();
   setTimeout(function(){var el=document.querySelector('.nmedit[data-zi="'+zi+'"][data-li="'+(arr(zi).length-1)+'"]');if(el)el.focus();},30);}
+function addCategory(){
+  var shade=document.createElement("div");shade.className="refshade";
+  shade.innerHTML='<div class="refbox" role="dialog" aria-modal="true"><strong>קטגוריה חדשה</strong><input type="text" aria-label="שם הקטגוריה" placeholder="שם הקטגוריה"><div class="referr" role="alert"></div><div class="refactions"><button type="button" class="refcancel">ביטול</button><button type="button" class="refsave">הוסף</button></div></div>';
+  var inp=shade.querySelector("input"),err=shade.querySelector(".referr");
+  var close=function(){shade.remove();};shade.querySelector(".refcancel").onclick=close;
+  shade.onclick=function(e){if(e.target===shade)close();};
+  shade.querySelector(".refsave").onclick=function(){var name=inp.value.trim();
+    if(!name||name.length>60||name==="כללי"||name==="סעיפים נוספים"||(D.customCats||[]).indexOf(name)>=0||D.gen.some(function(l){return l.g===name;})){err.textContent="יש להזין שם חדש וייחודי (עד 60 תווים)";return;}
+    D.customCats.push(name);close();save();render();document.getElementById("genc").scrollIntoView({behavior:"smooth",block:"start"});
+  };
+  inp.onkeydown=function(e){if(e.key==="Enter")shade.querySelector(".refsave").click();if(e.key==="Escape")close();};
+  document.body.appendChild(shade);inp.focus();
+}
+function addFreeCat(ci){var name=D.customCats&&D.customCats[ci];if(!name)return;D.gen.unshift({n:"",g:name,ref:null,p:null,q:0,free:true});EDIT={};EDIT["-1|0"]=true;save();render();setTimeout(function(){var el=document.querySelector('.nmedit[data-zi="-1"][data-li="0"]');if(el)el.focus();},30);}
+function removeCategory(ci){var name=D.customCats&&D.customCats[ci];if(!name)return;var count=D.gen.filter(function(l){return l.g===name;}).length;
+  if(!confirm('למחוק את הקטגוריה "'+name+'"'+(count?' ואת '+count+' הסעיפים שבה':'')+'?'))return;
+  D.gen=D.gen.filter(function(l){return l.g!==name;});D.customCats.splice(ci,1);EDIT={};save();render();}
 function setName(zi,li,val){var l=arr(zi)[li];if(l)l.n=val;save();}
 function delFree(zi,li){arr(zi).splice(li,1);delete EDIT[zi+"|"+li];save();render();}
 function demoPrice(l){
@@ -676,7 +699,7 @@ function arcShare(i){var a=arcGet();if(!a[i])return;shareDoc(a[i].d);}
 function docUrl(D){
   var slim={v:1,proj:D.proj,cli:D.cli,addr:D.addr,date:D.date,pm:D.pm,note:D.note,bz:D.bz,hob:D.hob,
     zones:(D.zones||[]).map(function(z){return {t:z.t,open:z.open,lines:slimLines(z.lines)};}),
-    gen:slimLines(D.gen)};
+    gen:slimLines(D.gen),customCats:(D.customCats||[]).slice()};
   var u=location.origin+location.pathname+"#q="+b64u(JSON.stringify(slim));
   return u.length>7500?null:u;
 }
@@ -698,6 +721,7 @@ function tryImport(){
   var nd=blank();
   ["proj","cli","addr","date","pm","note","bz","hob"].forEach(function(k){ if(o[k]!==undefined) nd[k]=o[k]; });
   nd.gen=migrate(o.gen||[],freshGen()).map(norm);
+  nd.customCats=Array.isArray(o.customCats)?o.customCats.slice():[];
   nd.zones=(o.zones||[]).map(function(z){return {t:z.t,open:!!z.open,lines:migrate(z.lines||[],freshZoneLines()).map(norm)};});
   nd.atts=[];
   D=nd; try{localStorage.setItem("gilquote_v6",JSON.stringify(D));}catch(e){}
@@ -705,7 +729,7 @@ function tryImport(){
   return true;
 }
 function arcGet(){try{return JSON.parse(localStorage.getItem("gilquote_arc")||"[]");}catch(e){return [];}}
-function load2(){if(!D)return;if(!D.zones)D.zones=[];if(!D.gen)D.gen=freshGen();if(!D.atts)D.atts=[];if(!D.hob)D.hob={p:null,q:1};var oz=-1;for(var zi=0;zi<D.zones.length;zi++){if(D.zones[zi].open){oz=zi;break;}}CURZONE=(oz>=0?oz:0);}
+function load2(){if(!D)return;if(!D.zones)D.zones=[];if(!D.gen)D.gen=freshGen();if(!Array.isArray(D.customCats))D.customCats=[];if(!D.atts)D.atts=[];if(!D.hob)D.hob={p:null,q:1};var oz=-1;for(var zi=0;zi<D.zones.length;zi++){if(D.zones[zi].open){oz=zi;break;}}CURZONE=(oz>=0?oz:0);}
 function arcSet(a){try{localStorage.setItem("gilquote_arc",JSON.stringify(a));}catch(e){alert("אין מספיק מקום לשמירה במכשיר");}}
 function arcSave(){
   var nm=(D.proj||"").trim();
