@@ -259,23 +259,38 @@ footer{background:#d8e5ff}
 /* אותה שורה, אותו צבע: איזורים; PDF; הצעות שמורות/חדשה; קבצים */
 .row3 .bigbtn,.row3 .bigbtn.red,.row3 .bigbtn.alt{background:#cbdcff;color:#213d73;border:1.5px solid #8faee5}
 .row2 .bigbtn,.row2 .bigbtn.pdf,.row2 .bigbtn.pdf2,.row2 .bigbtn.red,.row2 .bigbtn.arc,.row2 .bigbtn.alt{background:#cbdcff;color:#213d73;border:1.5px solid #8faee5}
-/* אחידות מלאה בכל הממשק: צבע פעולה יחיד, לא רק כפתורים שכנים */
-body{background:#f1f5fc}
-header{background:#d5e3ff;border-top-color:#8faee5;color:#213d73}
-.catsearch input,.catsearch .catclr{background:#cbdcff;border-color:#8faee5;color:#213d73;-webkit-text-fill-color:#213d73}
-.catsearch input:focus{background:#bfd4ff;border-color:#6489cb}
-.bigbtn,.bigbtn.alt,.bigbtn.grn,.bigbtn.pdf,.bigbtn.pdf2,.bigbtn.red,.bigbtn.arc,.bigbtn.wp,.bigbtn.fin,.bigbtn.catall,.bigbtn.addcategory,
-.row2 .bigbtn,.row3 .bigbtn,.row2 .bigbtn.red,.row3 .bigbtn.red,.row2 .bigbtn.pdf,.row2 .bigbtn.pdf2,.row2 .bigbtn.arc{background:#cbdcff!important;color:#213d73!important;border:1.5px solid #8faee5!important}
-.rfb,.rfb.on,.rfb.rfempty,.mlbtn,.qctrl,.crAdd,.qrow .pv,.qrow .wpb,.qrow .ld,.addrow button,.refbox button,.refbox button.refsave,.close,.catdel,.nmdone,.nmdel,.line .ok,.line .no,.line .td,.urow button{
- background:#cbdcff!important;color:#213d73!important;border:1px solid #8faee5!important}
-.zh,.zfoot,.agg,.customgrp,.grp{background:#e3ebff;color:#213d73}
-.catname{background:#fff;color:#213d73;border-color:#8faee5}
-footer{background:#d5e3ff;color:#213d73}
-.bar i,.wpfill{background:#82a9e5}
-.catsearch input::placeholder{color:#344a70;-webkit-text-fill-color:#344a70}
-/* מצב ביצוע נשאר מובחן, בלי לערבב את צבע כפתורי הפעולה */
-.line.done,.wprow.done{background:#e4f4ea}
-.line.todo{background:#fff0e8}
+/* פסטלים עשירים: קבוצות פעולה בצבעים שונים, בכל שורה צבע אחד */
+body{background:#f6f5ff}
+header{background:linear-gradient(115deg,#abe8ca 0%,#b7d0ff 52%,#ffc9af 100%);color:#20365d;border-top-color:#63bc94}
+.meta input,.meta .sel{border-color:#8aa6d3}
+.catsearch input,.catsearch .catclr{background:#b7d0ff;border-color:#789fdf;color:#20365d;-webkit-text-fill-color:#20365d}
+.catsearch input::placeholder{color:#304f7f;-webkit-text-fill-color:#304f7f}
+.catsearch input:focus{background:#a9c7ff;border-color:#557fca}
+.bigbtn,.bigbtn.alt{background:#b7d0ff;color:#203d76;border:1.5px solid #789fdf}
+.bigbtn.fin,.bigbtn.grn{background:#abe8ca;color:#16563f;border:1.5px solid #64bf96}
+.bigbtn.pdf,.bigbtn.pdf2,.bigbtn.red{background:#ffc9af;color:#713822;border:1.5px solid #e59370}
+.bigbtn.arc,.bigbtn.wp{background:#d5b9f1;color:#473262;border:1.5px solid #a780d0}
+.catall{background:#abe8ca!important;color:#16563f!important;border-color:#64bf96!important}
+.addcategory{background:#d5b9f1!important;color:#473262!important;border-color:#a780d0!important}
+.customgrp{background:#e2cdf7;color:#473262}
+.catdel{background:#d5b9f1;color:#473262;border-color:#a780d0}
+.zh,.zfoot,.agg{background:#deebff;color:#203d76}
+footer{background:#d7e5ff;color:#20365d}
+.frow.big{border-top-color:#91b2e6}
+.bar i,.wpfill{background:#82bca0}
+.crAdd,.addrow button{background:#b7d0ff;color:#203d76;border:1px solid #789fdf}
+.qrow .wpb{background:#d5b9f1;color:#473262}
+.rfb,.rfb.on,.rfb.rfempty,.mlbtn,.qctrl,.line .pr,.line .tt{background:#d6e5ff;color:#203d76;border-color:#95b5e9}
+.line .pr::placeholder{color:#506c99}
+.line .qstep{background:#d6e5ff;border-color:#95b5e9}
+.line .qstep .qt{background:#d6e5ff;color:#203d76;-webkit-text-fill-color:#203d76}
+.line .ok,.nmdone{background:#abe8ca;color:#16563f;border-color:#64bf96}
+.line .no,.line .td,.nmdel{background:#ffc9af;color:#713822;border-color:#e59370}
+/* שורות שלמות: קבצים בירוק, איזורים בכחול, PDF באפרסק, ארכיון בסגול */
+.row3 .bigbtn,.row3 .bigbtn.alt{background:#abe8ca;color:#16563f;border:1.5px solid #64bf96}
+#zones + .row3 .bigbtn,#zones + .row3 .bigbtn.red,#zones + .row3 .bigbtn.alt{background:#b7d0ff;color:#203d76;border:1.5px solid #789fdf}
+.row2 .bigbtn.pdf,.row2 .bigbtn.pdf2,#mod5 .row2 .bigbtn,#mod6 .row2 .bigbtn{background:#ffc9af;color:#713822;border:1.5px solid #e59370}
+.row2 .bigbtn.arc,.row2 .bigbtn.red{background:#d5b9f1;color:#473262;border:1.5px solid #a780d0}
 /* כל פקדי השורה בקו אחד; השם והמלל המפורט נשארים מעליהם */
 .line,.line.editing{display:block;padding:10px 9px}
 .line .nm,.line.editing .nm{width:100%;margin-bottom:7px}
