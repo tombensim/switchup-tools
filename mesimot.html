@@ -33,6 +33,15 @@ body{font-family:'Heebo',sans-serif;background:#cdd9ea;min-height:100vh;color:#1
 .atts{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
 .attthumb img{width:52px;height:52px;object-fit:cover;border-radius:8px;display:block}
 .attdoc{background:#f2f5fa;border-radius:8px;padding:7px 10px;font-size:12.5px;font-weight:700;color:#2f74c0;text-decoration:none}
+.xferbar{display:flex;justify-content:center;margin:14px 0 4px}
+.xferb{background:#15324f;color:#dbe7f5;border:1px solid #29527c;border-radius:10px;padding:9px 15px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit}
+.xmodal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:99;padding:16px}
+.xbox{background:#101a27;border:1px solid #27405c;border-radius:14px;padding:16px;max-width:460px;width:100%;color:#dbe7f5;font-size:14px;line-height:1.6}
+.xttl{font-size:16px;font-weight:800;margin-bottom:10px}
+.xurl{width:100%;background:#0a131d;color:#9fd0ff;border:1px solid #27405c;border-radius:8px;padding:8px;font-size:11px;direction:ltr;word-break:break-all;max-height:110px;overflow:auto;margin:8px 0}
+.xb{background:#1e7e40;color:#fff;border:0;border-radius:9px;padding:9px 14px;font-size:14px;font-weight:700;cursor:pointer;margin:4px 4px 0 0;font-family:inherit}
+.xclose{background:#243449;color:#cfe0f2;border:0;border-radius:9px;padding:8px 14px;font-size:13px;cursor:pointer;margin-top:10px;font-family:inherit}
+.xwarn{color:#f0b429;font-weight:700}
 .counter{text-align:center;font-size:14px;font-weight:700;color:#48566b;margin-bottom:12px}
 .list{display:flex;flex-direction:column;gap:10px}
 .task{background:#fff;border-radius:13px;box-shadow:0 2px 9px rgba(30,50,80,.08);padding:14px 15px;display:flex;flex-direction:column;align-items:stretch;gap:0;border-right:5px solid #2f74c0;transition:opacity .15s}
@@ -95,7 +104,9 @@ body{font-family:'Heebo',sans-serif;background:#cdd9ea;min-height:100vh;color:#1
   </div>
   <div class="counter" id="counter"></div>
   <div class="list" id="list"></div>
+  <div class="xferbar"><button class="xferb" onclick="openXfer()">📲 העבר למכשיר אחר</button></div>
   <div class="brand">נשמר במכשיר שלך בלבד · Switchup</div>
+  <div id="xfer" class="xmodal" style="display:none"><div class="xbox"><div class="xttl">העברה למכשיר אחר</div><div id="xbody"></div><button class="xclose" onclick="closeXfer()">סגור</button></div></div>
 </div>
 <script>
 var KEY='giltasks_v1';
@@ -197,8 +208,56 @@ function render(){
       +'</div>';
   }).join('');
 }
+function b64u(str){var b=btoa(unescape(encodeURIComponent(str)));return b.split('+').join('-').split('/').join('_').split('=').join('');}
+function unb64u(str){var b=str.split('-').join('+').split('_').join('/');while(b.length%4)b+='=';return decodeURIComponent(escape(atob(b)));}
+function slimTasks(){return TASKS.map(function(x){
+  var f=(x.files||[]).map(function(y){return {name:y.name,type:y.type};});
+  return {t:x.t,done:!!x.done,who:wl(x.who),due:x.due||'',alert:x.alert||'',id:x.id,files:f};
+});}
+function xferUrl(){
+  var pay={v:1,ts:Date.now(),tasks:slimTasks(),extra:EXTRA};
+  var base=location.origin+location.pathname;
+  return base+'#t='+b64u(JSON.stringify(pay));
+}
+function openXfer(){
+  var u=xferUrl();var n=TASKS.length;var nf=0;
+  TASKS.forEach(function(x){nf+=(x.files||[]).length;});
+  var warn=(nf?'<div class="xwarn">שים לב: '+nf+' קבצים מצורפים לא עוברים בקישור — רק השמות שלהם.</div>':'');
+  var big=(u.length>7000)?'<div class="xwarn">הקישור ארוך מאוד ('+u.length+' תווים) — ייתכן שלא ייפתח בחלק מהמכשירים.</div>':'';
+  document.getElementById('xbody').innerHTML='<div>'+n+' משימות. פתח את הקישור הזה במכשיר השני — המשימות ייכנסו לשם.</div>'+warn+big
+    +'<div class="xurl" id="xu">'+esc(u)+'</div>'
+    +'<button class="xb" onclick="cpXfer()">📋 העתק קישור</button>'
+    +'<button class="xb" onclick="waXfer()">💬 שלח בוואטסאפ</button>'
+    +'<div style="font-size:12px;color:#7385a0;margin-top:9px">זה העתק נקודתי, לא סנכרון חי. אחרי כל שינוי צריך להעביר שוב.</div>';
+  document.getElementById('xfer').style.display='flex';
+  window.__XU=u;
+}
+function closeXfer(){document.getElementById('xfer').style.display='none';}
+function cpXfer(){var u=window.__XU||'';if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(u).then(function(){alert('הקישור הועתק');},function(){prompt('העתק ידנית:',u);});}else{prompt('העתק ידנית:',u);}}
+function waXfer(){var u=window.__XU||'';window.open('https://wa.me/?text='+encodeURIComponent('דף המשימות שלי: '+u),'_blank');}
+function tryImport(){
+  var h=location.hash||'';
+  if(h.indexOf('#t=')!==0)return false;
+  var raw=h.slice(3);
+  try{
+    var pay=JSON.parse(unb64u(raw));
+    if(!pay||!pay.tasks)throw 0;
+    var inc=pay.tasks;
+    var have={};TASKS.forEach(function(x){have[x.id]=1;});
+    var add=inc.filter(function(x){return !have[x.id];});
+    var msg='נמצאו '+inc.length+' משימות בקישור.\n'+add.length+' מהן חדשות אצלך.\n\nלהוסיף אותן לרשימה? (המשימות הקיימות שלך נשמרות)';
+    if(confirm(msg)){
+      TASKS=TASKS.concat(add);
+      if(pay.extra){pay.extra.forEach(function(p){if(allPeople().indexOf(p)<0){EXTRA.push(p);}});savePeople();}
+      persist();
+    }
+  }catch(e){alert('הקישור לא תקין או פגום.');}
+  try{history.replaceState(null,'',location.pathname);}catch(e){location.hash='';}
+  return true;
+}
 function doOpen(e){if(e){e.preventDefault();e.stopPropagation();}var now=Date.now();if(now-(window.__lastOpen||0)<350)return;window.__lastOpen=now;openAdd();}
 var tg=document.getElementById('addtoggle');tg.addEventListener('click',doOpen);tg.addEventListener('touchend',doOpen);
+tryImport();
 render();renderAdd();
 </script>
 </body>
