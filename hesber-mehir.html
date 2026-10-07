@@ -272,7 +272,7 @@ header{background:#b7d0ff;color:#20365d;border-top-color:#789fdf}
 .bigbtn.arc,.bigbtn.wp{background:#d5b9f1;color:#473262;border:1.5px solid #a780d0}
 .catall{background:#abe8ca!important;color:#16563f!important;border-color:#64bf96!important}
 .addcategory{background:#d5b9f1!important;color:#473262!important;border-color:#a780d0!important}
-.customgrp{background:#e2cdf7;color:#473262}
+.customgrp{display:flex;align-items:center;justify-content:space-between;background:inherit;color:inherit}
 .catdel{background:#d5b9f1;color:#473262;border-color:#a780d0}
 .zh,.zfoot,.agg{background:#deebff;color:#203d76}
 footer{background:#d7e5ff;color:#20365d}
@@ -396,16 +396,19 @@ var HOBREF=500;
 var DEFNOTE="התמחור בוצע על פי תוכנית ״עננים״ מול תוכנית מצב קיים, ללא סט תוכניות מלא. תמחור מדויק יינתן בהתאם לסט תוכניות מלא.\nלא כולל: כיבוי בגז · שינויים/ביטולים של ספרינקלרים · התאמות מיזוג · ארונות תקשורת · רכש עיצוב וריהוט.";
 var GENLBL="פירוקים והובלות כלליות";
 var D=null;
-function freshZoneLines(){var a=[];CATALOG.forEach(function(g){g.items.forEach(function(it){a.push({n:it.n,g:g.g,ref:rref(it.n,it.ref),gen:!!it.gen,p:null,q:0});});});return a;}
+var CUSTOM=[];try{CUSTOM=JSON.parse(localStorage.getItem("gilquote_custom_catalog_v1")||"[]");if(!Array.isArray(CUSTOM))CUSTOM=[];}catch(e){CUSTOM=[];}
+var REMOVED=[];try{REMOVED=JSON.parse(localStorage.getItem("gilquote_custom_removed_v1")||"[]");if(!Array.isArray(REMOVED))REMOVED=[];}catch(e){REMOVED=[];}
+function saveCatalog(){try{localStorage.setItem("gilquote_custom_catalog_v1",JSON.stringify(CUSTOM));localStorage.setItem("gilquote_custom_removed_v1",JSON.stringify(REMOVED));}catch(e){alert("לא ניתן לשמור את הקטגוריה במכשיר זה");}}
+function freshZoneLines(){var a=[];CATALOG.concat(CUSTOM).forEach(function(g){g.items.forEach(function(it){a.push({n:it.n,g:g.g,ref:rref(it.n,it.ref),gen:!!it.gen,p:null,q:0});});});return a;}
 function freshGen(){return GENCAT.map(function(it){return {n:it.n,g:"כללי",ref:rref(it.n,it.ref),p:null,q:0};});}
-function blank(){return {proj:"",cli:"",addr:"",date:new Date().toISOString().slice(0,10),pm:"",note:DEFNOTE,bz:10,zones:[],gen:freshGen(),customCats:[],atts:[],hob:{p:null,q:1}};}
+function blank(){return {proj:"",cli:"",addr:"",date:new Date().toISOString().slice(0,10),pm:"",note:DEFNOTE,bz:10,zones:[],gen:freshGen(),customCats:CUSTOM.map(function(c){return c.g;}),atts:[],hob:{p:null,q:1}};}
 var UNDO={};
 function migrate(lines,fresh){
   var out=[],used={};
   fresh.forEach(function(f){
     var hit=null;
-    for(var i=0;i<lines.length;i++){ if(!used[i]&&lines[i].n===f.n){hit=lines[i];used[i]=1;break;} }
-    if(hit){ hit.g=f.g; hit.ref=f.ref; if(f.gen)hit.gen=true; else delete hit.gen; out.push(hit); }
+    for(var i=0;i<lines.length;i++){ if(!used[i]&&lines[i].n===f.n&&lines[i].g===f.g){hit=lines[i];used[i]=1;break;} }
+    if(hit){ hit.g=f.g; if(f.ref!==null||hit.ref==null)hit.ref=f.ref; if(f.gen)hit.gen=true; else delete hit.gen; out.push(hit); }
     else out.push(f);
   });
   lines.forEach(function(l,i){ if(!used[i])out.push(l); });
@@ -413,8 +416,17 @@ function migrate(lines,fresh){
 }
 function norm(l){delete l.d;delete l.x;var q=num(l.q);if(q===null||q<0)q=0;if(num(l.p)===null)q=0;l.q=Math.round(q);return l;}
 function load(){var s=null;try{s=localStorage.getItem("gilquote_v6");}catch(e){}try{D=s?JSON.parse(s):blank();}catch(e){D=blank();}if(!D.zones)D.zones=[];if(!D.gen)D.gen=freshGen();if(!Array.isArray(D.customCats))D.customCats=[];if(!D.atts)D.atts=[];if(!D.hob)D.hob={p:null,q:1};
+  // Migrate old per-quote custom groups into the device catalog, preserving priced lines.
+  (D.customCats||[]).forEach(function(g){if(!REMOVED.includes(g)&&!CUSTOM.some(function(c){return c.g===g;}))CUSTOM.push({g:g,items:[]});});
+  D.gen.forEach(function(l){var c=CUSTOM.find(function(x){return x.g===l.g;});if(c&&String(l.n||"").trim()&&!c.items.some(function(it){return it.n===l.n;}))c.items.push({n:l.n,ref:l.ref==null?null:l.ref});});
+  saveCatalog();D.customCats=CUSTOM.map(function(c){return c.g;});
   D.zones.forEach(function(z){z.lines=migrate(z.lines||[],freshZoneLines()).map(norm);});
   D.gen=migrate(D.gen||[],freshGen()).map(norm);
+  var oldCustom=D.gen.filter(function(l){return CUSTOM.some(function(c){return c.g===l.g;})&&String(l.n||"").trim();});
+  if(oldCustom.length){if(!D.zones.length)D.zones.push({t:"איזור 1",open:false,lines:freshZoneLines()});
+    var target=D.zones[0].lines;oldCustom.forEach(function(l){var dest=target.find(function(x){return x.n===l.n&&x.g===l.g;});if(dest)Object.assign(dest,l);else target.push(l);});
+    D.gen=D.gen.filter(function(l){return !oldCustom.includes(l);});}
+  D.gen=D.gen.filter(function(l){return !(CUSTOM.some(function(c){return c.g===l.g;})&&!String(l.n||"").trim()&&num(l.p)===null);});
   D.gen=D.gen.filter(function(l){return !(l.g==="סעיפים נוספים"&&!String(l.n||"").trim()&&num(l.p)===null&&qv(l)===0);});
   // Legacy search results from the area catalog must not appear on the main floor screen.
   var areaNames={};CATALOG.forEach(function(c){c.items.forEach(function(it){areaNames[it.n]=true;});});
@@ -457,7 +469,7 @@ function lineHTML(l,zi,li){
   var ed=!!EDIT[zi+"|"+li];
   if(ed)cls+=" editing";
   var nmInner=ed
-   ?'<div class="nmrow"><input class="nmedit" data-zi="'+zi+'" data-li="'+li+'" value="'+esc(l.n)+'" placeholder="תיאור הסעיף…" onchange="setName('+zi+','+li+',this.value)" oninput="setName('+zi+','+li+',this.value)"><button class="nmdone" onclick="doneLine('+zi+','+li+')" title="סיום">✓</button><button class="nmdel" onclick="delFree('+zi+','+li+')" title="מחק סעיף">－</button></div>'
+   ?'<div class="nmrow"><input class="nmedit" data-zi="'+zi+'" data-li="'+li+'" value="'+esc(l.n)+'" placeholder="תיאור הסעיף…" onchange="setName('+zi+','+li+',this.value)" oninput="draftName('+zi+','+li+',this.value)"><button class="nmdone" onclick="doneLine('+zi+','+li+')" title="סיום">✓</button><button class="nmdel" onclick="delFree('+zi+','+li+')" title="מחק סעיף">－</button></div>'
    :'<span class="nmtxt" onclick="editLine('+zi+','+li+')">'+esc(l.n)+'</span>';
   var mlTxt=(l.ml&&(""+l.ml).trim());
   var mlHTML='<div class="mlw"><button class="mlbtn" onclick="setMl('+zi+','+li+')">'+(mlTxt?'✎ מלל':'＋ מלל')+'</button></div>'+(mlTxt?'<div class="mlnote">＊('+esc((""+l.ml).trim())+')</div>':'');
@@ -473,14 +485,14 @@ var GREG={};
 function linesHTML(lines,zi){
   var order=[],byg={};
   lines.forEach(function(l,li){var g=l.g||"כללי";if(g==="סעיפים נוספים")g="כללי";if(!byg[g]){byg[g]=[];order.push(g);}byg[g].push({l:l,i:li});});
-  if(zi<0)(D.customCats||[]).forEach(function(g){if(!byg[g]){byg[g]=[];order.push(g);}});
+  if(zi>=0)CUSTOM.forEach(function(c){if(!byg[c.g]){byg[c.g]=[];order.push(c.g);}});
   GREG[zi]=order;
   var h="";
   order.forEach(function(g,gi){
-    var ci=zi<0?(D.customCats||[]).indexOf(g):-1;
-    h+='<div class="grp'+(ci>=0?' customgrp':'')+'">'+(ci>=0?'<input class="catname" aria-label="שם הקטגוריה" value="'+esc(g)+'" onchange="renameCategory('+ci+',this.value)" placeholder="שם הקטגוריה">':(g==="כללי"&&zi>=0?'':esc(g)))+(ci>=0?'<button type="button" class="catdel" aria-label="מחק קטגוריה" onclick="removeCategory('+ci+')">✕ מחק קטגוריה</button>':'')+'</div>';
+    var ci=zi>=0?CUSTOM.findIndex(function(c){return c.g===g;}):-1;
+    h+='<div class="grp'+(ci>=0?' customgrp':'')+'">'+(g==="כללי"&&zi>=0?'':esc(g))+(ci>=0?'<button type="button" class="catdel" aria-label="מחק קטגוריה" onclick="removeCategory('+ci+')">✕ מחק קטגוריה</button>':'')+'</div>';
     byg[g].forEach(function(o){ h+=lineHTML(o.l,zi,o.i); });
-    if(ci>=0)h+='<div class="addrow"><button onclick="addFreeCat('+ci+')">＋ סעיף לקטגוריה</button></div>';
+    if(ci>=0)h+='<div class="addrow"><button onclick="addFreeCat('+ci+','+zi+')">＋ סעיף לקטגוריה</button></div>';
     var rem=[];
     if(rem.length){
       var key=zi+"|"+gi, open=!!UNDO[key];
@@ -550,7 +562,7 @@ function editRef(zi,li){
     if(!/^\d+(?:\.\d{1,2})?$/.test(raw)||!Number.isFinite(Number(raw))){err.textContent="יש להזין מספר תקין";inp.focus();return;}
     var v=Number(raw);close();
     var perm=confirm("לעדכן את המחירון באופן קבוע?\nאישור = שינוי קבוע לכל ההצעות · ביטול = חד פעמי בהצעה זו בלבד");
-    if(perm){REFS[l.n]=v;refsSet(REFS);
+    if(perm){REFS[l.n]=v;refsSet(REFS);var cc=CUSTOM.find(function(c){return c.g===l.g;});if(cc){var item=cc.items.find(function(it){return it.n===l.n;});if(item)item.ref=v;saveCatalog();}
       D.zones.forEach(function(z){z.lines.forEach(function(x){if(x.n===l.n)x.ref=v;});});
       D.gen.forEach(function(x){if(x.n===l.n)x.ref=v;});
     }else{l.ref=v;}
@@ -580,7 +592,7 @@ function addFromCat(i){var o=LASTRES[i];if(!o)return;
   var it={n:o.n,g:o.g,ref:(o.ref==null?null:o.ref),p:null,q:0,added:true};
   var toZone=o.g!=="כללי";
   if(toZone&&!D.zones.length){D.zones.push({t:"איזור 1",open:true,lines:freshZoneLines()});CURZONE=0;}
-  if(toZone){var z=D.zones[CURZONE]||D.zones[0];z.open=true;var old=z.lines.find(function(l){return l.n===it.n;});if(!old)z.lines.unshift(it);}
+  if(toZone){var z=D.zones[CURZONE]||D.zones[0];z.open=true;var old=z.lines.find(function(l){return l.n===it.n&&l.g===it.g;});if(!old)z.lines.unshift(it);}
   else{var old=D.gen.find(function(l){return l.n===it.n;});if(!old)D.gen.unshift(it);}
   var cq=document.getElementById("catQ");if(cq)cq.value="";
   save();render();
@@ -595,7 +607,7 @@ function filterCat(){
     if(!q){res.style.display="none";res.innerHTML="";LASTRES=[];}
     else{
       var out=[];
-      CATALOG.forEach(function(g){g.items.forEach(function(it){if(it.n.toLowerCase().indexOf(q)>=0)out.push({n:it.n,g:g.g,ref:rref(it.n,it.ref)});});});
+      CATALOG.concat(CUSTOM).forEach(function(g){g.items.forEach(function(it){if(it.n.toLowerCase().indexOf(q)>=0)out.push({n:it.n,g:g.g,ref:rref(it.n,it.ref)});});});
       GENCAT.forEach(function(it){if(it.n.toLowerCase().indexOf(q)>=0)out.push({n:it.n,g:"כללי",ref:rref(it.n,it.ref)});});
       LASTRES=out;
       if(!out.length)res.innerHTML='<div class="crEmpty">אין תוצאות במחירון</div>';
@@ -696,7 +708,7 @@ function openCat(){
   GENCAT.forEach(function(it,i){if(i===0)h+='<div class="grp">סעיפים כלליים (קומה)</div>';
     var price=rref(it.n,it.ref);
     h+='<button type="button" class="cvrow cvopen" onclick="openCatItem(-1,'+i+')"><span class="cvn">'+esc(it.n)+'</span><span class="cvp">'+(price==null?'—':nf(price)+' ₪')+' ◀</span></button>';});
-  CATALOG.forEach(function(c,ci){
+  CATALOG.concat(CUSTOM).forEach(function(c,ci){
     h+='<div class="grp">'+esc(c.g)+'</div>';
     c.items.forEach(function(it,ii){var price=rref(it.n,it.ref);
       h+='<button type="button" class="cvrow cvopen" onclick="openCatItem('+ci+','+ii+')"><span class="cvn">'+esc(it.n)+'</span><span class="cvp">'+(price==null?'—':nf(price)+' ₪')+' ◀</span></button>';});
@@ -705,11 +717,11 @@ function openCat(){
   document.getElementById("mod7").classList.add("on");}
 function closeCat(){document.getElementById("mod7").classList.remove("on");}
 function openCatItem(ci,ii){
-  var it=ci<0?GENCAT[ii]:(CATALOG[ci]&&CATALOG[ci].items[ii]);if(!it)return;
+  var cats=CATALOG.concat(CUSTOM),it=ci<0?GENCAT[ii]:(cats[ci]&&cats[ci].items[ii]);if(!it)return;
   if(ci>=0&&!D.zones.length){D.zones.push({t:"איזור 1",open:true,lines:freshZoneLines()});CURZONE=0;}
   var zi=ci<0?-1:Math.min(CURZONE,D.zones.length-1);
-  var lines=arr(zi),li=lines.findIndex(function(l){return l.n===it.n;});
-  if(li<0){lines.unshift({n:it.n,g:ci<0?"כללי":CATALOG[ci].g,ref:rref(it.n,it.ref),p:null,q:0,added:true});li=0;}
+  var lines=arr(zi),li=lines.findIndex(function(l){return l.n===it.n&&l.g===(ci<0?"כללי":cats[ci].g);});
+  if(li<0){lines.unshift({n:it.n,g:ci<0?"כללי":cats[ci].g,ref:rref(it.n,it.ref),p:null,q:0,added:true});li=0;}
   var target=lines[li];
   if(zi>=0){D.zones.forEach(function(z,i){z.open=i===zi;});CURZONE=zi;}
   closeCat();save();render();li=arr(zi).indexOf(target);
@@ -726,29 +738,53 @@ function collapseAllUnused(){
   } else { GCOL={}; D.zones.forEach(function(z){z.open=true;}); }
   save();render();}
 var EDIT={};
-function editLine(zi,li){EDIT[zi+"|"+li]=true;render();
+function editLine(zi,li){EDIT[zi+"|"+li]={old:arr(zi)[li].n};render();
   setTimeout(function(){var el=document.querySelector('.nmedit[data-zi="'+zi+'"][data-li="'+li+'"]');if(el){el.focus();el.setSelectionRange&&el.setSelectionRange(el.value.length,el.value.length);}},30);}
-function doneLine(zi,li){delete EDIT[zi+"|"+li];render();}
+function doneLine(zi,li){var inp=document.querySelector('.nmedit[data-zi="'+zi+'"][data-li="'+li+'"]');if(inp)setName(zi,li,inp.value);delete EDIT[zi+"|"+li];render();}
 function addFree(zi){arr(zi).push({n:"",g:zi<0?"כללי":"",ref:null,p:null,d:false,x:false,free:true});EDIT[zi+"|"+(arr(zi).length-1)]=true;save();render();
   setTimeout(function(){var el=document.querySelector('.nmedit[data-zi="'+zi+'"][data-li="'+(arr(zi).length-1)+'"]');if(el)el.focus();},30);}
 function addCategory(){
-  var name="קטגוריה חדשה",n=2;while(D.customCats.includes(name)){name="קטגוריה חדשה "+n++;}
-  D.customCats.push(name);var ci=D.customCats.length-1;
-  D.gen.unshift({n:"",g:name,ref:null,p:null,q:0,free:true});EDIT={};EDIT["-1|0"]=true;
-  save();render();setTimeout(function(){var el=Array.from(document.querySelectorAll(".catname")).find(function(x){return x.value===name;});if(el){el.scrollIntoView({behavior:"smooth",block:"center"});el.focus();el.select();}},40);
+  var shade=document.createElement("div");shade.className="refshade";
+  shade.innerHTML='<div class="refbox" role="dialog" aria-modal="true"><strong>הוסף קטגוריה לאיזור</strong><input type="text" aria-label="שם הקטגוריה" placeholder="שם הקטגוריה"><div class="referr" role="alert"></div><div class="refactions"><button type="button" class="refcancel">ביטול</button><button type="button" class="refsave">אישור</button></div></div>';
+  var inp=shade.querySelector("input"),err=shade.querySelector(".referr");
+  var close=function(){shade.remove();};shade.querySelector(".refcancel").onclick=close;
+  shade.onclick=function(e){if(e.target===shade)close();};
+  shade.querySelector(".refsave").onclick=function(){var name=inp.value.trim();
+    if(!name||name.length>60||name==="כללי"||name==="סעיפים נוספים"||CATALOG.some(function(c){return c.g===name;})||CUSTOM.some(function(c){return c.g===name;})){err.textContent="יש להזין שם חדש וייחודי (עד 60 תווים)";return;}
+    if(!D.zones.length){D.zones.push({t:"איזור 1",open:true,lines:freshZoneLines()});CURZONE=0;}
+    var zi=curZoneIdx();if(zi<0)zi=0;
+    REMOVED=REMOVED.filter(function(g){return g!==name;});CUSTOM.push({g:name,items:[]});saveCatalog();D.customCats=CUSTOM.map(function(c){return c.g;});
+    D.zones.forEach(function(z,i){z.open=i===zi;});CURZONE=zi;close();save();render();
+    var card=document.querySelectorAll("#zones .card")[zi];if(card){var group=Array.from(card.querySelectorAll(".grp")).find(function(x){return x.textContent.indexOf(name)>=0;});if(group)group.scrollIntoView({behavior:"smooth",block:"center"});}
+  };
+  inp.onkeydown=function(e){if(e.key==="Enter")shade.querySelector(".refsave").click();if(e.key==="Escape")close();};
+  document.body.appendChild(shade);inp.focus();
 }
-function renameCategory(ci,val){var old=D.customCats[ci],name=val.trim();
-  if(!old)return;
-  if(!name||name.length>60||name==="כללי"||name==="סעיפים נוספים"||D.customCats.some(function(x,i){return i!==ci&&x===name;})||D.gen.some(function(l){return l.g===name&&l.g!==old;})){
-    alert("יש להזין שם חדש וייחודי (עד 60 תווים)");render();return;}
-  D.customCats[ci]=name;D.gen.forEach(function(l){if(l.g===old)l.g=name;});save();render();
+function addFreeCat(ci,zi){var cat=CUSTOM[ci];if(!cat||zi<0||!D.zones[zi])return;
+  var lines=D.zones[zi].lines;lines.unshift({n:"",g:cat.g,ref:null,p:null,q:0,free:true});
+  D.zones[zi].open=true;CURZONE=zi;EDIT={};EDIT[zi+"|0"]={old:""};save();render();
+  setTimeout(function(){var el=document.querySelector('.nmedit[data-zi="'+zi+'"][data-li="0"]');if(el)el.focus();},30);
 }
-function addFreeCat(ci){var name=D.customCats&&D.customCats[ci];if(!name)return;D.gen.unshift({n:"",g:name,ref:null,p:null,q:0,free:true});EDIT={};EDIT["-1|0"]=true;save();render();setTimeout(function(){var el=document.querySelector('.nmedit[data-zi="-1"][data-li="0"]');if(el)el.focus();},30);}
-function removeCategory(ci){var name=D.customCats&&D.customCats[ci];if(!name)return;var count=D.gen.filter(function(l){return l.g===name;}).length;
-  if(!confirm('למחוק את הקטגוריה "'+name+'"'+(count?' ואת '+count+' הסעיפים שבה':'')+'?'))return;
-  D.gen=D.gen.filter(function(l){return l.g!==name;});D.customCats.splice(ci,1);EDIT={};save();render();}
-function setName(zi,li,val){var l=arr(zi)[li];if(l)l.n=val;save();}
-function delFree(zi,li){arr(zi).splice(li,1);delete EDIT[zi+"|"+li];save();render();}
+function removeCategory(ci){var cat=CUSTOM[ci];if(!cat)return;var count=D.zones.reduce(function(n,z){return n+z.lines.filter(function(l){return l.g===cat.g;}).length;},0);
+  if(!confirm('למחוק את הקטגוריה "'+cat.g+'"'+(count?' ואת '+count+' הסעיפים שבה מכל האיזורים':'')+'?'))return;
+  D.zones.forEach(function(z){z.lines=z.lines.filter(function(l){return l.g!==cat.g;});});D.gen=D.gen.filter(function(l){return l.g!==cat.g;});
+  CUSTOM.splice(ci,1);if(!REMOVED.includes(cat.g))REMOVED.push(cat.g);saveCatalog();D.customCats=CUSTOM.map(function(c){return c.g;});EDIT={};save();render();}
+function draftName(zi,li,val){var l=arr(zi)[li];if(l){l.n=val;save();}}
+function setName(zi,li,val){var l=arr(zi)[li];if(!l)return;val=val.trim();var key=zi+"|"+li,old=(EDIT[key]&&typeof EDIT[key]==="object")?EDIT[key].old:l.n;
+  var cat=CUSTOM.find(function(c){return c.g===l.g;});
+  if(cat&&zi>=0){
+    if(!val&&old){l.n=old;save();render();return;}
+    if(val!==old&&cat.items.some(function(it){return it.n===val;})){l.n=old;alert("הסעיף כבר קיים בקטגוריה");save();render();return;}
+    var prev=cat.items.find(function(it){return it.n===old&&old;});
+    if(prev&&val){prev.n=val;D.zones.forEach(function(z){z.lines.forEach(function(x){if(x!==l&&x.g===cat.g&&x.n===old)x.n=val;});});}
+    else if(val&&!prev){cat.items.push({n:val,ref:l.ref});D.zones.forEach(function(z,i){if(i!==zi&&!z.lines.some(function(x){return x.g===cat.g&&x.n===val;}))z.lines.push({n:val,g:cat.g,ref:l.ref,p:null,q:0});});}
+    saveCatalog();}
+  l.n=val;if(EDIT[key]&&typeof EDIT[key]==="object")EDIT[key].old=val;save();}
+function delFree(zi,li){var l=arr(zi)[li],cat=CUSTOM.find(function(c){return c.g===l.g;});
+  if(cat&&l.n){if(!confirm('למחוק את הסעיף "'+l.n+'" מהקטגוריה הקבועה בכל האיזורים?'))return;
+    cat.items=cat.items.filter(function(it){return it.n!==l.n;});D.zones.forEach(function(z){z.lines=z.lines.filter(function(x){return !(x.g===cat.g&&x.n===l.n);});});saveCatalog();}
+  else arr(zi).splice(li,1);
+  EDIT={};save();render();}
 function demoPrice(l){
   if(l.ref!==null&&l.ref!==undefined&&l.ref>0)return Math.round(l.ref/100)*100;
   if(l.ref===0)return 0;
@@ -806,7 +842,7 @@ function tryImport(){
   nd.customCats=Array.isArray(o.customCats)?o.customCats.slice():[];
   nd.zones=(o.zones||[]).map(function(z){return {t:z.t,open:!!z.open,lines:migrate(z.lines||[],freshZoneLines()).map(norm)};});
   nd.atts=[];
-  D=nd; try{localStorage.setItem("gilquote_v6",JSON.stringify(D));}catch(e){}
+  D=nd; try{localStorage.setItem("gilquote_v6",JSON.stringify(D));}catch(e){}load();
   history.replaceState(null,"",location.pathname);
   return true;
 }
