@@ -291,6 +291,9 @@ footer{background:#d7e5ff;color:#20365d}
 #zones + .row3 .bigbtn,#zones + .row3 .bigbtn.red,#zones + .row3 .bigbtn.alt{background:#b7d0ff;color:#203d76;border:1.5px solid #789fdf}
 .row2 .bigbtn.pdf,.row2 .bigbtn.pdf2,#mod5 .row2 .bigbtn,#mod6 .row2 .bigbtn{background:#ffc9af;color:#713822;border:1.5px solid #e59370}
 .row2 .bigbtn.arc,.row2 .bigbtn.red{background:#d5b9f1;color:#473262;border:1.5px solid #a780d0}
+/* כמות נעולה עד שנבחר מחירון או הוזן מחיר */
+.qstep.qtylocked{background:#e6e9f0;border-color:#cbd2de}
+.qstep.qtylocked .qctrl,.qstep.qtylocked .qt{background:#e6e9f0!important;color:#7a8599!important;-webkit-text-fill-color:#7a8599!important;cursor:not-allowed;opacity:1}
 /* כל פקדי השורה בקו אחד; השם והמלל המפורט נשארים מעליהם */
 .line,.line.editing{display:block;padding:10px 9px}
 .line .nm,.line.editing .nm{width:100%;margin-bottom:7px}
@@ -449,7 +452,7 @@ function lineHTML(l,zi,li){
   var rf=(l.ref!==null&&l.ref!==undefined)
    ?'<div class="rfw"><button class="rfb'+(num(l.p)===l.ref?" on":"")+'" data-zi="'+zi+'" data-li="'+li+'" onclick="useRef('+zi+','+li+')">✓ מחירון '+nf(l.ref)+' ₪'+(qv(l)>0?' ×'+qv(l):'')+'</button></div>'
    :'<div class="rfw"><button class="rfb rfempty" data-zi="'+zi+'" data-li="'+li+'" onclick="editRef('+zi+','+li+')">＋ הוסף מחירון</button></div>';
-  var tt=ltot(l);
+  var tt=ltot(l),qtyReady=num(l.p)!==null;
   if(l.gen)cls+=" genl";
   var ed=!!EDIT[zi+"|"+li];
   if(ed)cls+=" editing";
@@ -461,7 +464,7 @@ function lineHTML(l,zi,li){
   return '<div class="'+cls+'">'+
   '<div class="nm">'+nmInner+(mlTxt?'<div class="mlnote">＊('+esc((""+l.ml).trim())+')</div>':'')+(l.gen?'<div class="tag">מתרכז בכללי</div>':'')+(zero?'<div class="qtag">❓ האם יש לבצע?</div>':'')+'</div>'+
   '<div class="qw">'+rf+'<div class="mlw"><button class="mlbtn" onclick="setMl('+zi+','+li+')">'+(mlTxt?'✎ מלל':'＋ מלל')+'</button></div>'+
-   '<div class="qstep"><button type="button" class="qctrl" aria-label="הפחת כמות" onclick="stepQ('+zi+','+li+',-1)">−</button><input class="qt" type="number" inputmode="numeric" min="0" aria-label="כמות" placeholder="כמות" value="'+(qv(l)>0?qv(l):"")+'" onchange="setQ('+zi+','+li+',this.value)"><button type="button" class="qctrl" aria-label="הוסף כמות" onclick="stepQ('+zi+','+li+',1)">＋</button></div>'+ 
+   '<div class="qstep'+(qtyReady?'':' qtylocked')+'"><button type="button" class="qctrl" aria-label="הפחת כמות"'+(qtyReady?'':' disabled title="קודם יש לבחור מחירון או להזין מחיר"')+' onclick="stepQ('+zi+','+li+',-1)">−</button><input class="qt" type="number" inputmode="numeric" min="0" aria-label="כמות" placeholder="כמות"'+(qtyReady?'':' disabled title="קודם יש לבחור מחירון או להזין מחיר"')+' value="'+(qv(l)>0?qv(l):"")+'" onchange="setQ('+zi+','+li+',this.value)"><button type="button" class="qctrl" aria-label="הוסף כמות"'+(qtyReady?'':' disabled title="קודם יש לבחור מחירון או להזין מחיר"')+' onclick="stepQ('+zi+','+li+',1)">＋</button></div>'+ 
    '<input class="pr" type="number" inputmode="numeric" placeholder="מחיר ₪" value="'+(l.p==null?"":l.p)+'" onchange="setP('+zi+','+li+',this.value)">'+
    '<div class="tt">'+(tt===null?'—':nf(tt)+' ₪')+'</div>'+
   '</div></div>';
@@ -669,8 +672,8 @@ function tog(e,i){D.zones[i].open=!D.zones[i].open;if(D.zones[i].open)CURZONE=i;
 function setZT(i,val){D.zones[i].t=val;save();render();}
 function arr(zi){return zi<0?D.gen:D.zones[zi].lines;}
 function setP(zi,li,val){if(zi>=0)CURZONE=zi;var l=arr(zi)[li];var was=(num(l.p)!==null);l.p=(val===""?null:val);if(l.p===null)l.q=0;else if(qv(l)<1)l.q=1;if(!was&&l.p!==null)bump(zi,li);save();render();}
-function setQ(zi,li,val){var v=parseFloat(val);arr(zi)[li].q=(isNaN(v)||v<0)?0:Math.round(v);save();render();}
-function stepQ(zi,li,delta){var l=arr(zi)[li];if(!l)return;l.q=Math.max(0,qv(l)+delta);save();render();}
+function setQ(zi,li,val){var l=arr(zi)[li];if(!l||num(l.p)===null)return;var v=parseFloat(val);l.q=(isNaN(v)||v<0)?0:Math.round(v);save();render();}
+function stepQ(zi,li,delta){var l=arr(zi)[li];if(!l||num(l.p)===null)return;l.q=Math.max(0,qv(l)+delta);save();render();}
 function setHobP(val){if(!D.hob)D.hob={p:null,q:1};D.hob.p=(val===""?null:val);save();render();}
 function setHobQ(val){if(!D.hob)D.hob={p:null,q:1};var v=parseFloat(val);D.hob.q=(isNaN(v)||v<1)?1:Math.round(v);save();render();}
 function useHobRef(){if(!D.hob)D.hob={p:null,q:1};D.hob.p=HOBREF;save();render();}
