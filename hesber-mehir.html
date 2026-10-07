@@ -2,6 +2,7 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><meta name="color-scheme" content="light">
 <title>הצעות מחיר · בינוי</title>
 <style>
+.catname{font:inherit;font-weight:800;color:#243354;background:#fff;border:1px solid #aabbd6;border-radius:8px;padding:7px;max-width:70%;direction:rtl}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 body{margin:0;font-family:-apple-system,"Segoe UI",Rubik,Arial,sans-serif;background:#f6f9ff;color:#17204d;padding-bottom:140px}
 header{background:linear-gradient(125deg,#17204d,#2c5cff);color:#fff;padding:13px 14px 12px;border-top:5px solid #00dc9f}
@@ -357,6 +358,15 @@ function norm(l){delete l.d;delete l.x;var q=num(l.q);if(q===null||q<0)q=0;if(nu
 function load(){var s=null;try{s=localStorage.getItem("gilquote_v6");}catch(e){}try{D=s?JSON.parse(s):blank();}catch(e){D=blank();}if(!D.zones)D.zones=[];if(!D.gen)D.gen=freshGen();if(!Array.isArray(D.customCats))D.customCats=[];if(!D.atts)D.atts=[];if(!D.hob)D.hob={p:null,q:1};
   D.zones.forEach(function(z){z.lines=migrate(z.lines||[],freshZoneLines()).map(norm);});
   D.gen=migrate(D.gen||[],freshGen()).map(norm);
+  D.gen=D.gen.filter(function(l){return !(l.g==="סעיפים נוספים"&&!String(l.n||"").trim()&&num(l.p)===null&&qv(l)===0);});
+  // Legacy search results from the area catalog must not appear on the main floor screen.
+  var areaNames={};CATALOG.forEach(function(c){c.items.forEach(function(it){areaNames[it.n]=true;});});
+  var moved=D.gen.filter(function(l){return areaNames[l.n]&&!(D.customCats||[]).includes(l.g);});
+  if(moved.length){if(!D.zones.length)D.zones.push({t:"איזור 1",open:false,lines:freshZoneLines()});
+    var dest=D.zones[0].lines; moved.forEach(function(l){var found=dest.find(function(x){return x.n===l.n;});
+      if(found){if(num(l.p)!==null||qv(l)>0||l.ml){Object.assign(found,l);found.g=CATALOG.find(function(c){return c.items.some(function(it){return it.n===l.n;});}).g;}}else dest.push(l);});
+    D.gen=D.gen.filter(function(l){return !moved.includes(l);});try{localStorage.setItem("gilquote_v6",JSON.stringify(D));}catch(e){}
+  }
   var oz=-1;for(var zi=0;zi<D.zones.length;zi++){if(D.zones[zi].open){oz=zi;break;}}
   CURZONE=(oz>=0?oz:0);
 }
@@ -405,13 +415,13 @@ function lineHTML(l,zi,li){
 var GREG={};
 function linesHTML(lines,zi){
   var order=[],byg={};
-  lines.forEach(function(l,li){var g=l.g||"סעיפים נוספים";if(!byg[g]){byg[g]=[];order.push(g);}byg[g].push({l:l,i:li});});
+  lines.forEach(function(l,li){var g=l.g||"כללי";if(g==="סעיפים נוספים")g="כללי";if(!byg[g]){byg[g]=[];order.push(g);}byg[g].push({l:l,i:li});});
   if(zi<0)(D.customCats||[]).forEach(function(g){if(!byg[g]){byg[g]=[];order.push(g);}});
   GREG[zi]=order;
   var h="";
   order.forEach(function(g,gi){
     var ci=zi<0?(D.customCats||[]).indexOf(g):-1;
-    h+='<div class="grp'+(ci>=0?' customgrp':'')+'">'+esc(g)+(ci>=0?'<button type="button" class="catdel" aria-label="מחק קטגוריה" onclick="removeCategory('+ci+')">✕ מחק קטגוריה</button>':'')+'</div>';
+    h+='<div class="grp'+(ci>=0?' customgrp':'')+'">'+(ci>=0?'<input class="catname" aria-label="שם הקטגוריה" value="'+esc(g)+'" onchange="renameCategory('+ci+',this.value)" placeholder="שם הקטגוריה">':(g==="כללי"&&zi>=0?'':esc(g)))+(ci>=0?'<button type="button" class="catdel" aria-label="מחק קטגוריה" onclick="removeCategory('+ci+')">✕ מחק קטגוריה</button>':'')+'</div>';
     byg[g].forEach(function(o){ h+=lineHTML(o.l,zi,o.i); });
     if(ci>=0)h+='<div class="addrow"><button onclick="addFreeCat('+ci+')">＋ סעיף לקטגוריה</button></div>';
     var rem=[];
@@ -511,9 +521,10 @@ var LASTRES=[];
 var CURZONE=0;
 function addFromCat(i){var o=LASTRES[i];if(!o)return;
   var it={n:o.n,g:o.g,ref:(o.ref==null?null:o.ref),p:null,q:0,added:true};
-  var toZone=(D.zones.length&&D.zones[CURZONE]);
-  if(toZone){D.zones[CURZONE].open=true;D.zones[CURZONE].lines.unshift(it);}
-  else{D.gen.unshift(it);}
+  var toZone=o.g!=="כללי";
+  if(toZone&&!D.zones.length){D.zones.push({t:"איזור 1",open:true,lines:freshZoneLines()});CURZONE=0;}
+  if(toZone){var z=D.zones[CURZONE]||D.zones[0];z.open=true;var old=z.lines.find(function(l){return l.n===it.n;});if(!old)z.lines.unshift(it);}
+  else{var old=D.gen.find(function(l){return l.n===it.n;});if(!old)D.gen.unshift(it);}
   var cq=document.getElementById("catQ");if(cq)cq.value="";
   save();render();
   var box=toZone?document.querySelectorAll("#zones .card")[CURZONE]:document.getElementById("genc");
@@ -638,7 +649,8 @@ function openCat(){
 function closeCat(){document.getElementById("mod7").classList.remove("on");}
 function openCatItem(ci,ii){
   var it=ci<0?GENCAT[ii]:(CATALOG[ci]&&CATALOG[ci].items[ii]);if(!it)return;
-  var zi=ci<0?-1:(D.zones.length?Math.min(CURZONE,D.zones.length-1):-1);
+  if(ci>=0&&!D.zones.length){D.zones.push({t:"איזור 1",open:true,lines:freshZoneLines()});CURZONE=0;}
+  var zi=ci<0?-1:Math.min(CURZONE,D.zones.length-1);
   var lines=arr(zi),li=lines.findIndex(function(l){return l.n===it.n;});
   if(li<0){lines.unshift({n:it.n,g:ci<0?"כללי":CATALOG[ci].g,ref:rref(it.n,it.ref),p:null,q:0,added:true});li=0;}
   var target=lines[li];
@@ -660,20 +672,19 @@ var EDIT={};
 function editLine(zi,li){EDIT[zi+"|"+li]=true;render();
   setTimeout(function(){var el=document.querySelector('.nmedit[data-zi="'+zi+'"][data-li="'+li+'"]');if(el){el.focus();el.setSelectionRange&&el.setSelectionRange(el.value.length,el.value.length);}},30);}
 function doneLine(zi,li){delete EDIT[zi+"|"+li];render();}
-function addFree(zi){arr(zi).push({n:"",g:"סעיפים נוספים",ref:null,p:null,d:false,x:false,free:true});EDIT[zi+"|"+(arr(zi).length-1)]=true;save();render();
+function addFree(zi){arr(zi).push({n:"",g:zi<0?"כללי":"",ref:null,p:null,d:false,x:false,free:true});EDIT[zi+"|"+(arr(zi).length-1)]=true;save();render();
   setTimeout(function(){var el=document.querySelector('.nmedit[data-zi="'+zi+'"][data-li="'+(arr(zi).length-1)+'"]');if(el)el.focus();},30);}
 function addCategory(){
-  var shade=document.createElement("div");shade.className="refshade";
-  shade.innerHTML='<div class="refbox" role="dialog" aria-modal="true"><strong>קטגוריה חדשה</strong><input type="text" aria-label="שם הקטגוריה" placeholder="שם הקטגוריה"><div class="referr" role="alert"></div><div class="refactions"><button type="button" class="refcancel">ביטול</button><button type="button" class="refsave">הוסף</button></div></div>';
-  var inp=shade.querySelector("input"),err=shade.querySelector(".referr");
-  var close=function(){shade.remove();};shade.querySelector(".refcancel").onclick=close;
-  shade.onclick=function(e){if(e.target===shade)close();};
-  shade.querySelector(".refsave").onclick=function(){var name=inp.value.trim();
-    if(!name||name.length>60||name==="כללי"||name==="סעיפים נוספים"||(D.customCats||[]).indexOf(name)>=0||D.gen.some(function(l){return l.g===name;})){err.textContent="יש להזין שם חדש וייחודי (עד 60 תווים)";return;}
-    D.customCats.push(name);close();save();render();document.getElementById("genc").scrollIntoView({behavior:"smooth",block:"start"});
-  };
-  inp.onkeydown=function(e){if(e.key==="Enter")shade.querySelector(".refsave").click();if(e.key==="Escape")close();};
-  document.body.appendChild(shade);inp.focus();
+  var name="קטגוריה חדשה",n=2;while(D.customCats.includes(name)){name="קטגוריה חדשה "+n++;}
+  D.customCats.push(name);var ci=D.customCats.length-1;
+  D.gen.unshift({n:"",g:name,ref:null,p:null,q:0,free:true});EDIT={};EDIT["-1|0"]=true;
+  save();render();setTimeout(function(){var el=Array.from(document.querySelectorAll(".catname")).find(function(x){return x.value===name;});if(el){el.scrollIntoView({behavior:"smooth",block:"center"});el.focus();el.select();}},40);
+}
+function renameCategory(ci,val){var old=D.customCats[ci],name=val.trim();
+  if(!old)return;
+  if(!name||name.length>60||name==="כללי"||name==="סעיפים נוספים"||D.customCats.some(function(x,i){return i!==ci&&x===name;})||D.gen.some(function(l){return l.g===name&&l.g!==old;})){
+    alert("יש להזין שם חדש וייחודי (עד 60 תווים)");render();return;}
+  D.customCats[ci]=name;D.gen.forEach(function(l){if(l.g===old)l.g=name;});save();render();
 }
 function addFreeCat(ci){var name=D.customCats&&D.customCats[ci];if(!name)return;D.gen.unshift({n:"",g:name,ref:null,p:null,q:0,free:true});EDIT={};EDIT["-1|0"]=true;save();render();setTimeout(function(){var el=document.querySelector('.nmedit[data-zi="-1"][data-li="0"]');if(el)el.focus();},30);}
 function removeCategory(ci){var name=D.customCats&&D.customCats[ci];if(!name)return;var count=D.gen.filter(function(l){return l.g===name;}).length;
