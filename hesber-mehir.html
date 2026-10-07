@@ -233,6 +233,9 @@ footer{background:#e8efff;color:#243354;box-shadow:0 -2px 12px #263f6620}
 .addcategory{background:#eee5f9!important;color:#513b71!important;border:1.5px solid #cebce4!important;margin-bottom:10px!important}
 .customgrp{display:flex;align-items:center;justify-content:space-between;background:#eee5f9;color:#513b71;font-size:13px}
 .catdel{border:1px solid #e9baa6;border-radius:8px;background:#ffe5d8;color:#793c28;font-size:11px;font-weight:700;font-family:inherit;padding:5px 8px}
+.cvopen{width:100%;border:0;border-bottom:1px solid #e6ecf5;background:#fff;color:#243354;text-align:right;font-family:inherit;cursor:pointer;touch-action:manipulation}
+.cvopen:active,.cvopen:focus-visible{background:#dfe9ff;outline:2px solid #8aa9e5}
+.line.catfocus{background:#fff0db!important;outline:2px solid #d5a77e;outline-offset:-2px}
 /* כל פקדי השורה בקו אחד; השם והמלל המפורט נשארים מעליהם */
 .line,.line.editing{display:block;padding:10px 9px}
 .line .nm,.line.editing .nm{width:100%;margin-bottom:7px}
@@ -622,16 +625,27 @@ var GCOL={};
 function tglGrp(zi,gi){var g=(GREG[zi]||[])[gi];if(!g)return;var k=zi+"|"+g;if(GCOL[k])delete GCOL[k];else GCOL[k]=true;render();}
 function openCat(){
   var h='';
-  GENCAT.forEach(function(it,i){ if(i===0) h+='<div class="grp">סעיפים כלליים (קומה)</div>';
-    h+='<div class="cvrow"><span class="cvn">'+esc(it.n)+'</span><span class="cvp">'+(it.ref===null||it.ref===undefined?'—':nf(it.ref)+' ₪')+'</span></div>'; });
-  CATALOG.forEach(function(c){
+  GENCAT.forEach(function(it,i){if(i===0)h+='<div class="grp">סעיפים כלליים (קומה)</div>';
+    var price=rref(it.n,it.ref);
+    h+='<button type="button" class="cvrow cvopen" onclick="openCatItem(-1,'+i+')"><span class="cvn">'+esc(it.n)+'</span><span class="cvp">'+(price==null?'—':nf(price)+' ₪')+' ◀</span></button>';});
+  CATALOG.forEach(function(c,ci){
     h+='<div class="grp">'+esc(c.g)+'</div>';
-    c.items.forEach(function(it){
-      h+='<div class="cvrow"><span class="cvn">'+esc(it.n)+'</span><span class="cvp">'+(it.ref===null||it.ref===undefined?'—':nf(it.ref)+' ₪')+'</span></div>'; });
+    c.items.forEach(function(it,ii){var price=rref(it.n,it.ref);
+      h+='<button type="button" class="cvrow cvopen" onclick="openCatItem('+ci+','+ii+')"><span class="cvn">'+esc(it.n)+'</span><span class="cvp">'+(price==null?'—':nf(price)+' ₪')+' ◀</span></button>';});
   });
   document.getElementById("catList").innerHTML=h;
   document.getElementById("mod7").classList.add("on");}
 function closeCat(){document.getElementById("mod7").classList.remove("on");}
+function openCatItem(ci,ii){
+  var it=ci<0?GENCAT[ii]:(CATALOG[ci]&&CATALOG[ci].items[ii]);if(!it)return;
+  var zi=ci<0?-1:(D.zones.length?Math.min(CURZONE,D.zones.length-1):-1);
+  var lines=arr(zi),li=lines.findIndex(function(l){return l.n===it.n;});
+  if(li<0){lines.unshift({n:it.n,g:ci<0?"כללי":CATALOG[ci].g,ref:rref(it.n,it.ref),p:null,q:0,added:true});li=0;}
+  var target=lines[li];
+  if(zi>=0){D.zones.forEach(function(z,i){z.open=i===zi;});CURZONE=zi;}
+  closeCat();save();render();li=arr(zi).indexOf(target);
+  setTimeout(function(){var b=document.querySelector('.rfb[data-zi="'+zi+'"][data-li="'+li+'"]');var row=b&&b.closest(".line");if(row){row.scrollIntoView({behavior:"smooth",block:"center"});row.classList.add("catfocus");setTimeout(function(){row.classList.remove("catfocus");},2400);}},80);
+}
 function collapseAllUnused(){
   var anyOpen=D.zones.some(function(z){return z.open;});
   var anyGrpOpen=false;
