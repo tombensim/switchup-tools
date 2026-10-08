@@ -396,6 +396,8 @@ var HOBREF=500;
 var DEFNOTE="התמחור בוצע על פי תוכנית ״עננים״ מול תוכנית מצב קיים, ללא סט תוכניות מלא. תמחור מדויק יינתן בהתאם לסט תוכניות מלא.\nלא כולל: כיבוי בגז · שינויים/ביטולים של ספרינקלרים · התאמות מיזוג · ארונות תקשורת · רכש עיצוב וריהוט.";
 var GENLBL="פירוקים והובלות כלליות";
 var D=null;
+// Deliberately session-only: quantities unlock per line only after touching its price.
+var QREADY=new WeakSet();
 var CUSTOM=[];try{CUSTOM=JSON.parse(localStorage.getItem("gilquote_custom_catalog_v1")||"[]");if(!Array.isArray(CUSTOM))CUSTOM=[];}catch(e){CUSTOM=[];}
 var REMOVED=[];try{REMOVED=JSON.parse(localStorage.getItem("gilquote_custom_removed_v1")||"[]");if(!Array.isArray(REMOVED))REMOVED=[];}catch(e){REMOVED=[];}
 function saveCatalog(){try{localStorage.setItem("gilquote_custom_catalog_v1",JSON.stringify(CUSTOM));localStorage.setItem("gilquote_custom_removed_v1",JSON.stringify(REMOVED));}catch(e){alert("לא ניתן לשמור את הקטגוריה במכשיר זה");}}
@@ -464,7 +466,7 @@ function lineHTML(l,zi,li){
   var rf=(l.ref!==null&&l.ref!==undefined)
    ?'<div class="rfw"><button class="rfb'+(num(l.p)===l.ref?" on":"")+'" data-zi="'+zi+'" data-li="'+li+'" onclick="useRef('+zi+','+li+')">✓ מחירון '+nf(l.ref)+' ₪'+(qv(l)>0?' ×'+qv(l):'')+'</button></div>'
    :'<div class="rfw"><button class="rfb rfempty" data-zi="'+zi+'" data-li="'+li+'" onclick="editRef('+zi+','+li+')">＋ הוסף מחירון</button></div>';
-  var tt=ltot(l),qtyReady=num(l.p)!==null;
+  var tt=ltot(l),qtyReady=num(l.p)!==null&&QREADY.has(l);
   if(l.gen)cls+=" genl";
   var ed=!!EDIT[zi+"|"+li];
   if(ed)cls+=" editing";
@@ -477,7 +479,7 @@ function lineHTML(l,zi,li){
   '<div class="nm">'+nmInner+(mlTxt?'<div class="mlnote">＊('+esc((""+l.ml).trim())+')</div>':'')+(l.gen?'<div class="tag">מתרכז בכללי</div>':'')+(zero?'<div class="qtag">❓ האם יש לבצע?</div>':'')+'</div>'+
   '<div class="qw">'+rf+'<div class="mlw"><button class="mlbtn" onclick="setMl('+zi+','+li+')">'+(mlTxt?'✎ מלל':'＋ מלל')+'</button></div>'+
    '<div class="qstep'+(qtyReady?'':' qtylocked')+'"><button type="button" class="qctrl" aria-label="הפחת כמות"'+(qtyReady?'':' disabled title="קודם יש לבחור מחירון או להזין מחיר"')+' onclick="stepQ('+zi+','+li+',-1)">−</button><input class="qt" type="number" inputmode="numeric" min="0" aria-label="כמות" placeholder="כמות"'+(qtyReady?'':' disabled title="קודם יש לבחור מחירון או להזין מחיר"')+' value="'+(qv(l)>0?qv(l):"")+'" onchange="setQ('+zi+','+li+',this.value)"><button type="button" class="qctrl" aria-label="הוסף כמות"'+(qtyReady?'':' disabled title="קודם יש לבחור מחירון או להזין מחיר"')+' onclick="stepQ('+zi+','+li+',1)">＋</button></div>'+ 
-   '<input class="pr" type="number" inputmode="numeric" placeholder="מחיר ₪" value="'+(l.p==null?"":l.p)+'" onchange="setP('+zi+','+li+',this.value)">'+
+   '<input class="pr" type="number" inputmode="numeric" placeholder="מחיר ₪" value="'+(l.p==null?"":l.p)+'" onfocus="unlockQ('+zi+','+li+',this)" onchange="setP('+zi+','+li+',this.value)">'+
    '<div class="tt">'+(tt===null?'—':nf(tt)+' ₪')+'</div>'+
   '</div></div>';
 }
@@ -566,7 +568,7 @@ function editRef(zi,li){
       D.zones.forEach(function(z){z.lines.forEach(function(x){if(x.n===l.n)x.ref=v;});});
       D.gen.forEach(function(x){if(x.n===l.n)x.ref=v;});
     }else{l.ref=v;}
-    l.p=v;save();render();
+    l.p=v;QREADY.add(l);if(qv(l)<1)l.q=1;save();render();
   };
   inp.onkeydown=function(e){if(e.key==="Enter")shade.querySelector(".refsave").click();if(e.key==="Escape")close();};
   document.body.appendChild(shade);inp.focus();inp.select();
@@ -579,7 +581,7 @@ document.addEventListener("touchend",lpEnd);
 document.addEventListener("touchmove",lpEnd,{passive:true});
 document.addEventListener("mouseup",lpEnd);
 function bump(zi,li){var a=arr(zi);if(li>=0&&li<a.length){var l=a.splice(li,1)[0];a.unshift(l);}}
-function useRef(zi,li){if(LPFIRED){LPFIRED=false;return;}if(zi>=0)CURZONE=zi;var l=arr(zi)[li];l.p=l.ref;l.q=qv(l)+1;bump(zi,li);save();render();}
+function useRef(zi,li){if(LPFIRED){LPFIRED=false;return;}if(zi>=0)CURZONE=zi;var l=arr(zi)[li];l.p=l.ref;if(num(l.p)!==null){QREADY.add(l);l.q=qv(l)+1;}bump(zi,li);save();render();}
 function newPrice(zi,li){var l=arr(zi)[li];var was=(num(l.p)!==null);var r=prompt("מחיר לסעיף: "+l.n,(l.p==null?"":l.p));if(r===null)return;r=(r+"").trim();l.p=(r===""?null:(parseFloat(r.replace(/[^0-9.\-]/g,""))||0));if(!was&&l.p!==null)bump(zi,li);save();render();}
 function setMl(zi,li){var l=arr(zi)[li];if(!l)return;var r=prompt("מלל חופשי לסעיף (יוצג בכוכבית ובסוגריים):",(l.ml||""));if(r===null)return;l.ml=(""+r).trim();save();render();}
 function mlpv(l){return (l.ml&&(""+l.ml).trim())?'<div style="font-size:11px;color:#5b6676;margin-top:2px;font-weight:400">＊('+esc((""+l.ml).trim())+')</div>':'';}
@@ -683,9 +685,11 @@ function render(){
 function tog(e,i){D.zones[i].open=!D.zones[i].open;if(D.zones[i].open)CURZONE=i;save();render();}
 function setZT(i,val){D.zones[i].t=val;save();render();}
 function arr(zi){return zi<0?D.gen:D.zones[zi].lines;}
-function setP(zi,li,val){if(zi>=0)CURZONE=zi;var l=arr(zi)[li];var was=(num(l.p)!==null);l.p=(val===""?null:val);if(l.p===null)l.q=0;else if(qv(l)<1)l.q=1;if(!was&&l.p!==null)bump(zi,li);save();render();}
-function setQ(zi,li,val){var l=arr(zi)[li];if(!l||num(l.p)===null)return;var v=parseFloat(val);l.q=(isNaN(v)||v<0)?0:Math.round(v);save();render();}
-function stepQ(zi,li,delta){var l=arr(zi)[li];if(!l||num(l.p)===null)return;l.q=Math.max(0,qv(l)+delta);save();render();}
+function unlockQ(zi,li,input){var l=arr(zi)[li];if(!l||num(l.p)===null)return;
+  QREADY.add(l);var step=input.closest(".line").querySelector(".qstep");if(step){step.classList.remove("qtylocked");step.querySelectorAll("button,input").forEach(function(el){el.disabled=false;el.removeAttribute("title");});}}
+function setP(zi,li,val){if(zi>=0)CURZONE=zi;var l=arr(zi)[li];var was=(num(l.p)!==null);l.p=(val===""?null:val);if(num(l.p)===null){l.q=0;QREADY.delete(l);}else{QREADY.add(l);if(qv(l)<1)l.q=1;}if(!was&&num(l.p)!==null)bump(zi,li);save();render();}
+function setQ(zi,li,val){var l=arr(zi)[li];if(!l||num(l.p)===null||!QREADY.has(l))return;var v=parseFloat(val);l.q=(isNaN(v)||v<0)?0:Math.round(v);save();render();}
+function stepQ(zi,li,delta){var l=arr(zi)[li];if(!l||num(l.p)===null||!QREADY.has(l))return;l.q=Math.max(0,qv(l)+delta);save();render();}
 function setHobP(val){if(!D.hob)D.hob={p:null,q:1};D.hob.p=(val===""?null:val);save();render();}
 function setHobQ(val){if(!D.hob)D.hob={p:null,q:1};var v=parseFloat(val);D.hob.q=(isNaN(v)||v<1)?1:Math.round(v);save();render();}
 function useHobRef(){if(!D.hob)D.hob={p:null,q:1};D.hob.p=HOBREF;save();render();}
