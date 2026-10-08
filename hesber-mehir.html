@@ -291,6 +291,12 @@ footer{background:#d7e5ff;color:#20365d}
 #zones + .row3 .bigbtn,#zones + .row3 .bigbtn.red,#zones + .row3 .bigbtn.alt{background:#b7d0ff;color:#203d76;border:1.5px solid #789fdf}
 .row2 .bigbtn.pdf,.row2 .bigbtn.pdf2,#mod5 .row2 .bigbtn,#mod6 .row2 .bigbtn{background:#ffc9af;color:#713822;border:1.5px solid #e59370}
 .row2 .bigbtn.arc,.row2 .bigbtn.red{background:#d5b9f1;color:#473262;border:1.5px solid #a780d0}
+/* שם קטגוריה אישית ניתן לעריכה בלי לשנות קטגוריות מובנות */
+.catactions{display:inline-flex;gap:5px}.catedit{border:1px solid #9bb7e5;border-radius:8px;background:#d6e5ff;color:#203d76;font:700 11px inherit;padding:5px 8px}
+/* פעולות גלויות לכל סעיף, גם במחירון המובנה */
+.nmrow,.nm{min-width:0}.lineactions{display:inline-flex;gap:5px;margin-inline-start:8px;vertical-align:middle}
+.lineactions button{border:1px solid #a9bce1;background:#d6e5ff;color:#203d76;border-radius:7px;padding:3px 7px;font:700 13px inherit;cursor:pointer}
+.lineactions button:last-child{background:#ffe3d5;border-color:#e4ae91;color:#793c28}
 /* כמות נעולה עד שנבחר מחירון או הוזן מחיר */
 .qstep.qtylocked{background:#e6e9f0;border-color:#cbd2de}
 .qstep.qtylocked .qctrl,.qstep.qtylocked .qt{background:#e6e9f0!important;color:#7a8599!important;-webkit-text-fill-color:#7a8599!important;cursor:not-allowed;opacity:1}
@@ -409,14 +415,14 @@ function migrate(lines,fresh){
   var out=[],used={};
   fresh.forEach(function(f){
     var hit=null;
-    for(var i=0;i<lines.length;i++){ if(!used[i]&&lines[i].n===f.n&&lines[i].g===f.g){hit=lines[i];used[i]=1;break;} }
+    for(var i=0;i<lines.length;i++){ if(!used[i]&&(lines[i].sourceName||lines[i].n)===f.n&&lines[i].g===f.g){hit=lines[i];used[i]=1;break;} }
     if(hit){ hit.g=f.g; if(f.ref!==null||hit.ref==null)hit.ref=f.ref; if(f.gen)hit.gen=true; else delete hit.gen; out.push(hit); }
     else out.push(f);
   });
   lines.forEach(function(l,i){ if(!used[i])out.push(l); });
   return out;
 }
-function norm(l){delete l.d;delete l.x;var q=num(l.q);if(q===null||q<0)q=0;if(num(l.p)===null)q=0;l.q=Math.round(q);return l;}
+function norm(l){delete l.d;if(l.hiddenQuote)l.x=true;else delete l.x;var q=num(l.q);if(q===null||q<0)q=0;if(num(l.p)===null)q=0;l.q=Math.round(q);return l;}
 function load(){var s=null;try{s=localStorage.getItem("gilquote_v6");}catch(e){}try{D=s?JSON.parse(s):blank();}catch(e){D=blank();}if(!D.zones)D.zones=[];if(!D.gen)D.gen=freshGen();if(!Array.isArray(D.customCats))D.customCats=[];if(!D.atts)D.atts=[];if(!D.hob)D.hob={p:null,q:1};
   // Migrate old per-quote custom groups into the device catalog, preserving priced lines.
   (D.customCats||[]).forEach(function(g){if(!REMOVED.includes(g)&&!CUSTOM.some(function(c){return c.g===g;}))CUSTOM.push({g:g,items:[]});});
@@ -472,7 +478,7 @@ function lineHTML(l,zi,li){
   if(ed)cls+=" editing";
   var nmInner=ed
    ?'<div class="nmrow"><input class="nmedit" data-zi="'+zi+'" data-li="'+li+'" value="'+esc(l.n)+'" placeholder="תיאור הסעיף…" onchange="setName('+zi+','+li+',this.value)" oninput="draftName('+zi+','+li+',this.value)"><button class="nmdone" onclick="doneLine('+zi+','+li+')" title="סיום">✓</button><button class="nmdel" onclick="delFree('+zi+','+li+')" title="מחק סעיף">－</button></div>'
-   :'<span class="nmtxt" onclick="editLine('+zi+','+li+')">'+esc(l.n)+'</span>';
+   :'<span class="nmtxt" onclick="editLine('+zi+','+li+')">'+esc(l.n)+'</span><span class="lineactions"><button type="button" onclick="editLine('+zi+','+li+')" aria-label="ערוך סעיף" title="ערוך סעיף">✎</button><button type="button" onclick="delFree('+zi+','+li+')" aria-label="מחק סעיף" title="מחק סעיף">✕</button></span>';
   var mlTxt=(l.ml&&(""+l.ml).trim());
   var mlHTML='<div class="mlw"><button class="mlbtn" onclick="setMl('+zi+','+li+')">'+(mlTxt?'✎ מלל':'＋ מלל')+'</button></div>'+(mlTxt?'<div class="mlnote">＊('+esc((""+l.ml).trim())+')</div>':'');
   return '<div class="'+cls+'">'+
@@ -486,13 +492,13 @@ function lineHTML(l,zi,li){
 var GREG={};
 function linesHTML(lines,zi){
   var order=[],byg={};
-  lines.forEach(function(l,li){var g=l.g||"כללי";if(g==="סעיפים נוספים")g="כללי";if(!byg[g]){byg[g]=[];order.push(g);}byg[g].push({l:l,i:li});});
+  lines.forEach(function(l,li){if(l.x)return;var g=l.g||"כללי";if(g==="סעיפים נוספים")g="כללי";if(!byg[g]){byg[g]=[];order.push(g);}byg[g].push({l:l,i:li});});
   if(zi>=0)CUSTOM.forEach(function(c){if(!byg[c.g]){byg[c.g]=[];order.push(c.g);}});
   GREG[zi]=order;
   var h="";
   order.forEach(function(g,gi){
     var ci=zi>=0?CUSTOM.findIndex(function(c){return c.g===g;}):-1;
-    h+='<div class="grp'+(ci>=0?' customgrp':'')+'">'+(g==="כללי"&&zi>=0?'':esc(g))+(ci>=0?'<button type="button" class="catdel" aria-label="מחק קטגוריה" onclick="removeCategory('+ci+')">✕ מחק קטגוריה</button>':'')+'</div>';
+    h+='<div class="grp'+(ci>=0?' customgrp':'')+'">'+(g==="כללי"&&zi>=0?'':esc(g))+(ci>=0?'<span class="catactions"><button type="button" class="catedit" aria-label="ערוך שם קטגוריה" onclick="renameCategory('+ci+')">✎ ערוך</button><button type="button" class="catdel" aria-label="מחק קטגוריה" onclick="removeCategory('+ci+')">✕ מחק</button></span>':'')+'</div>';
     byg[g].forEach(function(o){ h+=lineHTML(o.l,zi,o.i); });
     if(ci>=0)h+='<div class="addrow"><button onclick="addFreeCat('+ci+','+zi+')">＋ סעיף לקטגוריה</button></div>';
     var rem=[];
@@ -594,8 +600,8 @@ function addFromCat(i){var o=LASTRES[i];if(!o)return;
   var it={n:o.n,g:o.g,ref:(o.ref==null?null:o.ref),p:null,q:0,added:true};
   var toZone=o.g!=="כללי";
   if(toZone&&!D.zones.length){D.zones.push({t:"איזור 1",open:true,lines:freshZoneLines()});CURZONE=0;}
-  if(toZone){var z=D.zones[CURZONE]||D.zones[0];z.open=true;var old=z.lines.find(function(l){return l.n===it.n&&l.g===it.g;});if(!old)z.lines.unshift(it);}
-  else{var old=D.gen.find(function(l){return l.n===it.n;});if(!old)D.gen.unshift(it);}
+  if(toZone){var z=D.zones[CURZONE]||D.zones[0];z.open=true;var old=z.lines.find(function(l){return l.n===it.n&&l.g===it.g;});if(old){old.x=false;delete old.hiddenQuote;}else z.lines.unshift(it);}
+  else{var old=D.gen.find(function(l){return l.n===it.n;});if(old){old.x=false;delete old.hiddenQuote;}else D.gen.unshift(it);}
   var cq=document.getElementById("catQ");if(cq)cq.value="";
   save();render();
   var box=toZone?document.querySelectorAll("#zones .card")[CURZONE]:document.getElementById("genc");
@@ -726,7 +732,7 @@ function openCatItem(ci,ii){
   var zi=ci<0?-1:Math.min(CURZONE,D.zones.length-1);
   var lines=arr(zi),li=lines.findIndex(function(l){return l.n===it.n&&l.g===(ci<0?"כללי":cats[ci].g);});
   if(li<0){lines.unshift({n:it.n,g:ci<0?"כללי":cats[ci].g,ref:rref(it.n,it.ref),p:null,q:0,added:true});li=0;}
-  var target=lines[li];
+  var target=lines[li];if(target.x){target.x=false;delete target.hiddenQuote;target.p=null;target.q=0;}
   if(zi>=0){D.zones.forEach(function(z,i){z.open=i===zi;});CURZONE=zi;}
   closeCat();save();render();li=arr(zi).indexOf(target);
   setTimeout(function(){var b=document.querySelector('.rfb[data-zi="'+zi+'"][data-li="'+li+'"]');var row=b&&b.closest(".line");if(row){row.scrollIntoView({behavior:"smooth",block:"center"});row.classList.add("catfocus");setTimeout(function(){row.classList.remove("catfocus");},2400);}},80);
@@ -769,6 +775,14 @@ function addFreeCat(ci,zi){var cat=CUSTOM[ci];if(!cat||zi<0||!D.zones[zi])return
   D.zones[zi].open=true;CURZONE=zi;EDIT={};EDIT[zi+"|0"]={old:""};save();render();
   setTimeout(function(){var el=document.querySelector('.nmedit[data-zi="'+zi+'"][data-li="0"]');if(el)el.focus();},30);
 }
+function renameCategory(ci){var cat=CUSTOM[ci];if(!cat)return;
+  var name=prompt("שם הקטגוריה:",cat.g);if(name===null)return;name=name.trim();
+  if(!name||name.length>60||name==="כללי"||name==="סעיפים נוספים"||CATALOG.some(function(c){return c.g===name;})||CUSTOM.some(function(c,i){return i!==ci&&c.g===name;})){alert("יש להזין שם חדש וייחודי (עד 60 תווים)");return;}
+  if(name===cat.g)return;var old=cat.g;cat.g=name;
+  D.zones.forEach(function(z){z.lines.forEach(function(l){if(l.g===old)l.g=name;});});
+  D.gen.forEach(function(l){if(l.g===old)l.g=name;});
+  REMOVED=REMOVED.filter(function(g){return g!==name;});if(!REMOVED.includes(old))REMOVED.push(old);
+  D.customCats=CUSTOM.map(function(c){return c.g;});saveCatalog();save();render();}
 function removeCategory(ci){var cat=CUSTOM[ci];if(!cat)return;var count=D.zones.reduce(function(n,z){return n+z.lines.filter(function(l){return l.g===cat.g;}).length;},0);
   if(!confirm('למחוק את הקטגוריה "'+cat.g+'"'+(count?' ואת '+count+' הסעיפים שבה מכל האיזורים':'')+'?'))return;
   D.zones.forEach(function(z){z.lines=z.lines.filter(function(l){return l.g!==cat.g;});});D.gen=D.gen.filter(function(l){return l.g!==cat.g;});
@@ -776,6 +790,7 @@ function removeCategory(ci){var cat=CUSTOM[ci];if(!cat)return;var count=D.zones.
 function draftName(zi,li,val){var l=arr(zi)[li];if(l){l.n=val;save();}}
 function setName(zi,li,val){var l=arr(zi)[li];if(!l)return;val=val.trim();var key=zi+"|"+li,old=(EDIT[key]&&typeof EDIT[key]==="object")?EDIT[key].old:l.n;
   var cat=CUSTOM.find(function(c){return c.g===l.g;});
+  if(!cat&&zi>=0&&old!==val&&!l.sourceName)l.sourceName=old;
   if(cat&&zi>=0){
     if(!val&&old){l.n=old;save();render();return;}
     if(val!==old&&cat.items.some(function(it){return it.n===val;})){l.n=old;alert("הסעיף כבר קיים בקטגוריה");save();render();return;}
@@ -784,10 +799,12 @@ function setName(zi,li,val){var l=arr(zi)[li];if(!l)return;val=val.trim();var ke
     else if(val&&!prev){cat.items.push({n:val,ref:l.ref});D.zones.forEach(function(z,i){if(i!==zi&&!z.lines.some(function(x){return x.g===cat.g&&x.n===val;}))z.lines.push({n:val,g:cat.g,ref:l.ref,p:null,q:0});});}
     saveCatalog();}
   l.n=val;if(EDIT[key]&&typeof EDIT[key]==="object")EDIT[key].old=val;save();}
-function delFree(zi,li){var l=arr(zi)[li],cat=CUSTOM.find(function(c){return c.g===l.g;});
+function delFree(zi,li){var l=arr(zi)[li];if(!l)return;var cat=CUSTOM.find(function(c){return c.g===l.g;});
   if(cat&&l.n){if(!confirm('למחוק את הסעיף "'+l.n+'" מהקטגוריה הקבועה בכל האיזורים?'))return;
     cat.items=cat.items.filter(function(it){return it.n!==l.n;});D.zones.forEach(function(z){z.lines=z.lines.filter(function(x){return !(x.g===cat.g&&x.n===l.n);});});saveCatalog();}
-  else arr(zi).splice(li,1);
+  else if(l.free||l.added||zi<0&&!GENCAT.some(function(it){return it.n===(l.sourceName||l.n);})){
+    if(l.n&&!confirm('למחוק את הסעיף "'+l.n+'" מההצעה?'))return;arr(zi).splice(li,1);}
+  else{if(!confirm('להסיר את הסעיף "'+l.n+'" מההצעה הזו? הוא יישאר במחירון.'))return;l.hiddenQuote=true;l.x=true;l.p=null;l.q=0;}
   EDIT={};save();render();}
 function demoPrice(l){
   if(l.ref!==null&&l.ref!==undefined&&l.ref>0)return Math.round(l.ref/100)*100;
